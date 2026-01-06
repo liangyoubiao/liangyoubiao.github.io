@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="关于, Hexo">
+    <meta name="keywords" content="Hexo">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>关于 | Hexo</title>
+    <title>Hexo</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/5.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/0.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">about</h1>
+                    <h1 class="description center-align post-title"></h1>
                 </div>
             </div>
         </div>
@@ -443,7 +443,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-04-13
+                    2025-04-24
                 </div>
                 
 
@@ -464,7 +464,271 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                
+                <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随机抽取数字</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      width: 30%;
+      text-align: left;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #529ca0;
+    }
+    #randomNameDisplay {
+      font-size: 120px;
+      font-weight: bold;
+      color: #529ca0;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #333;
+      width: 100%;
+      height: 225px; /* 调整高度 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative; /* 关键 */
+    }
+
+    #randomNumber {
+      font-size: 120px;
+      line-height: 1; /* 防止行距影响 */
+    }
+
+    #randomMessage {
+      font-size: 20px;
+      color: #90a4ae;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      width: 100%;
+      position: absolute;
+      bottom: 10px; /* 让文字固定在底部 */
+    }
+
+
+    .button-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    /* 修改按钮样式，偏向于暗黑色 */
+    .button {
+      width: 15%;
+      padding: 8px 15px;
+      font-size: 14px;
+      background-color: #333333; /* 暗灰色背景 */
+      color: #d3c6c6; /* 白色文字 */
+      border: 2px solid #444444; /* 边框颜色和背景接近 */
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border 0.3s ease; /* 平滑过渡效果 */
+    }
+
+    .button:hover {
+      background-color: #555555; /* 深灰色，鼠标悬浮时 */
+      border: 2px solid #666666; /* 增强的边框 */
+    }
+
+    /* 重置按钮的颜色偏向暗红色 */
+    .reset-button {
+      background-color: #444444; /* 深灰色背景 */
+      color: #bcaaaa; /* 白色文字 */
+      border: 2px solid #555555; /* 边框颜色接近背景 */
+    }
+
+    .reset-button:hover {
+      background-color: #666666; /* 深灰色，鼠标悬浮时 */
+      border: 2px solid #777777; /* 增强的边框 */
+    }
+
+
+    .nameListContainer {
+      margin-top: 15px;
+      padding: 15px;
+    }
+    .nameListContainers {
+      min-height: 150px; /* 设置最小高度，防止内容为空时高度变化 */
+      margin-top: 15px;
+      padding: 15px;
+    }
+
+    .drawn-result {
+      font-size: 15px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #555;
+      background-color: #333;
+      text-align: center;
+      margin-top: 5px;
+      max-width: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    ul {
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+      list-style: none;
+    }
+
+    li {
+      margin: 3px;
+      padding: 8px;
+      background-color: #444;
+      border: 2px solid #555;
+      border-radius: 6px;
+      text-align: center;
+      width: calc(33% - 10px);
+      max-width: 150px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="randomNameDisplay">
+  <div id="randomNumber">0</div>
+  <div id="randomMessage"></div>
+</div>
+
+<div class="container">
+
+  <div class="button-wrapper">
+    <button class="button" id="toggleDrawButton" onclick="toggleRandomDraw()">开始</button>
+    <button class="button reset-button" onclick="resetDrawnList()">重置</button>
+  </div>
+
+  <div class="nameListContainer">
+    <h3>已抽取</h3>
+    <div id="result" class="drawn-result">未抽取</div>
+  </div>
+
+  <div class="nameListContainers">
+    <h3>已抽取的数字</h3>
+    <ul id="drawnList"></ul>
+  </div>
+
+</div>
+
+<script>
+  let allNumbers = Array.from({ length: 12 }, (_, i) => i + 1);
+  let drawnNumbers = [];
+  let randomInterval;
+  let isDrawing = false;
+  let currentRandomNumber = "";
+  const messages = {
+    1: "没有执行力，就没有竞争力！",
+    2: "你的成长速度，取决于你的复盘效率！",
+    3: "要做，就做最好的！",
+    4: "赚钱，才是现在最重要的事情！",
+    5: "你正在创造属于自己的奇迹！",
+    6: "相信自己，你能做到！",
+    7: "只有赢的人，才有资格继续往上爬！",
+    8: "机会只留给有准备的人！",
+    9: "挑战，让你变得更强！",
+    10: "物竞天择，适者生存，不适者淘汰！",
+    11: "改变自己最快的方式，就是去做自己害怕的事情！",
+    12: "自律，成就更好的自己！"
+  };
+
+  function toggleRandomDraw() {
+    if (allNumbers.length === 0) {
+      alert("所有数字已抽取完毕！");
+      return;
+    }
+
+    const drawButton = document.getElementById("toggleDrawButton");
+    const randomDisplay = document.getElementById("randomNumber");
+    const messageDisplay = document.getElementById("randomMessage");
+    const resultDisplay = document.getElementById("result");
+    const drawnListElement = document.getElementById("drawnList");
+
+    if (isDrawing) {
+      clearInterval(randomInterval);
+      isDrawing = false;
+      drawButton.textContent = "开始";
+
+      if (currentRandomNumber !== "") {
+        drawnNumbers.unshift(currentRandomNumber);
+        if (drawnNumbers.length > 3) {
+          drawnNumbers.pop();
+        }
+        allNumbers = allNumbers.filter(num => num !== currentRandomNumber);
+        messageDisplay.textContent = messages[currentRandomNumber] || "祝你好运！";
+        resultDisplay.textContent = `任务 ${currentRandomNumber}`;
+        updateDrawnList();
+        document.getElementById("result").textContent = `任务 ${currentRandomNumber}`;
+      }
+    } else {
+      isDrawing = true;
+      drawButton.textContent = "结束";
+      messageDisplay.textContent = "";
+      randomInterval = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * allNumbers.length);
+        currentRandomNumber = allNumbers[randomIndex];
+        randomDisplay.textContent = currentRandomNumber;
+      }, 50);
+    }
+  }
+
+  function resetDrawnList() {
+    drawnNumbers = [];
+    allNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
+    document.getElementById("randomMessage").textContent = "";
+    document.getElementById("randomNumber").textContent = "0";
+    document.getElementById("result").textContent = "未抽取";
+    document.getElementById("drawnList").innerHTML = "";
+  }
+
+  function updateDrawnList() {
+    const drawnListElement = document.getElementById("drawnList");
+    drawnListElement.innerHTML = "";
+    drawnNumbers.forEach(num => {
+      const li = document.createElement("li");
+      li.textContent = `任务 ${num}`;
+      drawnListElement.appendChild(li);
+    });
+  }
+</script>
+
+</body>
+</html>
+
                 
             </div>
             <hr/>
@@ -490,7 +754,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://liangyoubiao.github.io/about/index.html">https://liangyoubiao.github.io/about/index.html</a>
+                    <a href="https://liangyoubiao.github.io/page/index.html">https://liangyoubiao.github.io/page/index.html</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -700,13 +964,13 @@
                 <i class="far fa-dot-circle"></i>&nbsp;本篇
             </div>
             <div class="card">
-                <a href="/about/index.html">
+                <a href="/page/index.html">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="about">
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="">
                         
-                        <span class="card-title">about</span>
+                        <span class="card-title"></span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -717,7 +981,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-04-13
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-04-24
                             </span>
                         <span class="publish-author">
                             
@@ -738,13 +1002,13 @@
                 本篇&nbsp;<i class="far fa-dot-circle"></i>
             </div>
             <div class="card">
-                <a href="/about/index.html">
+                <a href="/page/index.html">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="about">
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="">
                         
-                        <span class="card-title">about</span>
+                        <span class="card-title"></span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -755,7 +1019,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-04-13
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-04-24
                             </span>
                         <span class="publish-author">
                             
