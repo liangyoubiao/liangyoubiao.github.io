@@ -465,6 +465,11 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>本文将详细讲解如何在基于 Hexo 框架、使用闪烁之狐（Flicker Fox）主题的个人博客上发布第一篇文章，涵盖从文章创建、内容编辑、主题适配配置到本地预览、线上部署的全流程。</p>
+<br>
+
+
+
+
 <h2 id="一、前期准备"><a href="#一、前期准备" class="headerlink" title="一、前期准备"></a>一、前期准备</h2><p>在发布文章前，需确保你的 Hexo 博客已完成基础搭建和部署，核心准备工作如下：</p>
 <ol>
 <li><strong>环境就绪</strong>：本地已安装 Node.js（验证命令：<code>node -v</code>）和 Git（验证命令：<code>git --version</code>），且 Git 已配置好 GitHub 用户名和邮箱（配置命令：<code>git config --global user.name &quot;你的用户名&quot;</code>、<code>git config --global user.email &quot;你的邮箱&quot;</code>）。</li>
@@ -481,7 +486,18 @@
 <li><p>执行成功后，终端会提示类似 <code>Created: ~/blog/source/_posts/我的第一篇 Hexo 博客.md</code> 的信息，说明文章文件已生成。文件默认存储在 <code>source/_posts/</code> 目录下，格式为 Markdown（.md），这是 Hexo 博客的标准文章格式。</p>
 </li>
 </ol>
+<br>
+
+
+
+
+
+
 <h3 id="步骤-2：编辑文章内容"><a href="#步骤-2：编辑文章内容" class="headerlink" title="步骤 2：编辑文章内容"></a>步骤 2：编辑文章内容</h3><p>生成的 .md 文件包含两部分核心内容：Front-matter 头部配置（主题核心适配项）和正文内容（Markdown 格式），需按以下要求编辑：</p>
+<br>
+
+
+
 <h4 id="2-1-编辑-Front-matter-头部配置"><a href="#2-1-编辑-Front-matter-头部配置" class="headerlink" title="2.1 编辑 Front-matter 头部配置"></a>2.1 编辑 Front-matter 头部配置</h4><p>打开 <code>source/_posts/你的文章标题.md</code> 文件，顶部 <code>---</code> 之间的部分即为 Front-matter，是 Hexo 和闪烁之狐主题识别文章属性的关键，推荐配置如下（适配主题特色功能）：</p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line"><span class="section"># 基础必填项</span></span><br><span class="line">title: 我的第一篇 Hexo 博客        # 文章标题（与创建命令中的标题一致，可修改）</span><br><span class="line">date: 2026-01-06 16:30:00         # 发布时间（自动生成，可手动调整格式为 YYYY-MM-DD HH:mm:ss）</span><br><span class="line">tags: [&quot;Hexo&quot;, &quot;闪烁之狐&quot;, &quot;博客教程&quot;]  # 文章标签（数组格式，支持多个，用逗号分隔）</span><br><span class="line">categories: [&quot;技术教程&quot;]           # 文章分类（数组格式，可设置多级分类，比如 [&quot;技术教程&quot;, &quot;Hexo 进阶&quot;]）</span><br><span class="line">author: &quot;你的昵称&quot;                 # 作者名（闪烁之狐主题会在文章详情页显示）</span><br><span class="line"></span><br><span class="line"><span class="section"># 闪烁之狐主题特有配置（核心！决定主题展示效果）</span></span><br><span class="line">toc: true                          # 是否显示侧边目录（true 开启，false 关闭，主题默认支持目录自动生成）</span><br><span class="line">comments: true                     # 是否开启评论功能（true 开启，需提前配置主题评论插件，比如 Valine）</span><br><span class="line">cover: /images/cover.jpg           # 文章封面图（主题核心视觉元素，必填！否则首页展示不完整）</span><br><span class="line">top: true                          # 是否置顶文章（true 置顶，首页优先级高于普通文章；false 不置顶）</span><br><span class="line">keywords: &quot;Hexo, 闪烁之狐, 博客发布&quot;  # SEO 关键词，助力搜索引擎收录</span><br><span class="line"><span class="section">description: &quot;这是我使用 Hexo 闪烁之狐主题发布的第一篇博客，记录了完整的发布流程。&quot;  # 文章摘要（首页展示的简介内容）</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure>
 
@@ -496,13 +512,28 @@
 <li><p>格式注意：YAML 语法对格式敏感，<code>:</code> 后必须加空格，层级需用空格缩进（不能用 Tab），否则会导致主题识别失败。</p>
 </li>
 </ul>
+<br>
+
+
+  
+
 <h4 id="2-2-编辑文章正文（Markdown-语法）"><a href="#2-2-编辑文章正文（Markdown-语法）" class="headerlink" title="2.2 编辑文章正文（Markdown 语法）"></a>2.2 编辑文章正文（Markdown 语法）</h4><p>Front-matter 下方的内容即为文章正文，需使用标准 Markdown 语法编写，闪烁之狐主题会自动适配样式，常用语法示例如下：</p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># 一级标题（文章大章节）</span></span><br><span class="line"><span class="section">## 二级标题（子章节）</span></span><br><span class="line"><span class="section">### 三级标题（小节）</span></span><br><span class="line"></span><br><span class="line"><span class="section"># 文本格式</span></span><br><span class="line">这是普通文本，<span class="strong">**这是加粗文本**</span>，<span class="emphasis">*这是斜体文本*</span>，~~这是删除线文本~~。</span><br><span class="line"></span><br><span class="line"><span class="section"># 列表</span></span><br><span class="line"><span class="bullet">-</span> 无序列表项 1</span><br><span class="line"><span class="bullet">-</span> 无序列表项 2</span><br><span class="line"><span class="bullet">  -</span> 子列表项</span><br><span class="line"><span class="bullet">1.</span> 有序列表项 1</span><br><span class="line"><span class="bullet">2.</span> 有序列表项 2</span><br><span class="line"></span><br><span class="line"><span class="section"># 插入图片（正文图片）</span></span><br><span class="line"><span class="section"># 图片同样放在 source/images/ 目录下，路径格式与封面图一致</span></span><br><span class="line">![<span class="string">示例图片描述</span>](<span class="link">/images/example.jpg</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 插入链接</span></span><br><span class="line">[<span class="string">跳转至 Hexo 官网</span>](<span class="link">https://hexo.io/zh-cn/</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块（技术文章常用）</span></span><br><span class="line"><span class="code">```bash</span></span><br><span class="line"><span class="code"># 这里是命令行代码</span></span><br><span class="line"><span class="code">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</span></span><br><span class="line"><span class="code">```</span></span><br><span class="line"></span><br><span class="line"><span class="section"># 引用</span></span><br><span class="line"><span class="quote">&gt; 这是引用内容，比如引用名人名言或其他文章片段。</span></span><br></pre></td></tr></table></figure>
 
+<br>
+
+
 <p>小技巧：若不想用 <code>description</code> 配置摘要，可在正文任意位置添加 <code>&lt;!-- more --&gt;</code> 分割线，分割线之前的内容会自动作为首页文章摘要展示，适合摘要内容较长的场景。</p>
+<br>
+
+
+
 <h4 id="2-3-下载图片并替换掉md文件里面的语雀图片"><a href="#2-3-下载图片并替换掉md文件里面的语雀图片" class="headerlink" title="2.3 下载图片并替换掉md文件里面的语雀图片"></a>2.3 下载图片并替换掉md文件里面的语雀图片</h4><p>手动运行脚本my-blog项目下的yuque.py文件</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd E:\my-blog</span><br><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
-<p>扩展，可以使用钩子函数在部署时，自动触发图片下载并替换</p>
+<p>扩展，可以使用钩子函数在部署时，自动触发图片下载并替换(已实现)</p>
+<br>
+
+
 <h3 id="步骤-3：本地预览文章"><a href="#步骤-3：本地预览文章" class="headerlink" title="步骤 3：本地预览文章"></a>步骤 3：本地预览文章</h3><p>编辑完成后，建议先在本地预览文章效果，确认主题样式、排版、图片显示正常后再部署到线上：</p>
 <ol>
 <li><p>保持终端在 Hexo 项目根目录，执行本地预览命令：</p>
@@ -518,6 +549,9 @@
 <li><p>命令执行成功后，打开浏览器访问 <a href="http://localhost:4000，即可看到博客首页。">http://localhost:4000，即可看到博客首页。</a></p>
 </li>
 </ol>
+<br>
+
+
 <h3 id="步骤-4：部署文章到线上博客"><a href="#步骤-4：部署文章到线上博客" class="headerlink" title="步骤 4：部署文章到线上博客"></a>步骤 4：部署文章到线上博客</h3><p>本地预览无误后，即可将文章部署到线上（以部署到 GitHub Pages 为例，其他平台逻辑类似）：</p>
 <ol>
 <li><p>确保终端仍在 Hexo 项目根目录，执行部署命令： </p>
@@ -530,11 +564,18 @@
 <li><p>等待部署完成：终端显示 <code>Deploy done: git</code> 即表示部署成功。</p>
 </li>
 </ol>
+<br>
+
+
+
 <h3 id="步骤-5：验证线上发布效果"><a href="#步骤-5：验证线上发布效果" class="headerlink" title="步骤 5：验证线上发布效果"></a>步骤 5：验证线上发布效果</h3><ol>
 <li>打开浏览器，访问你的线上博客地址（格式：<code>https://你的GitHub用户名.github.io</code>）。</li>
 <li>若首页能看到刚发布的文章，点击进入详情页确认所有内容正常显示，说明发布成功。</li>
 <li>若暂时未显示，可能是 GitHub Pages 缓存，等待 1-2 分钟后刷新即可。</li>
 </ol>
+<br>
+
+
 <h2 id="三、常见问题解决"><a href="#三、常见问题解决" class="headerlink" title="三、常见问题解决"></a>三、常见问题解决</h2><ol>
 <li><strong>本地预览看不到文章？</strong> - 检查文章文件是否在 <code>source/_posts/</code> 目录下（路径错误会导致 Hexo 无法识别）； - 检查 Front-matter 格式是否正确（比如 <code>:</code> 后是否加空格、是否用 Tab 缩进），格式错误会导致文章无法解析。</li>
 <li><strong>线上博客看不到文章？</strong> - 检查部署命令是否执行成功（终端是否显示 <code>Deploy done: git</code>）； - 登录 GitHub，进入你的博客仓库，查看 <code>main</code> 分支（或部署分支）是否有新的提交记录，确认文章对应的 HTML 文件已推送； - 检查 GitHub Pages 配置：仓库 → Settings → Pages → Source 是否选择了部署分支（比如 main）和根目录。</li>
