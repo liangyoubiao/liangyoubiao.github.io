@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐蔽式键盘呼吸灯（单次触发）</title>
+    <style>
+        /* 页面基础样式 - 极致低对比护眼暗色调 */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1c221c;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+
+        /* 键盘容器 - 放大布局 */
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 25px;
+            background-color: #1d231d;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 键盘行样式 */
+        .keyboard-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* 行错位 */
+        .keyboard-row:nth-child(2) {
+            margin-left: 25px;
+        }
+        .keyboard-row:nth-child(3) {
+            margin-left: 50px;
+        }
+
+        /* 按键基础样式 - 放大尺寸 */
+        .key {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e241e;
+            color: #2a322a;
+            font-size: 24px;
+            font-weight: normal;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: none;
+            box-shadow: 0 3px 0 #1a201a;
+            border: 1px solid #1f251f;
+            /* 动画时长与JS中保持一致（1.2秒） */
+            animation-duration: 1.2s;
+            animation-timing-function: ease;
+            animation-fill-mode: forwards;
+        }
+
+        /* 按键按下样式 */
+        .key.active {
+            box-shadow: 0 1px 0 #1a201a;
+            transform: translateY(2px);
+            background-color: #1f251f;
+        }
+
+        /* 单次呼吸灯动画 - 仅执行一次，无infinite */
+        @keyframes breathe {
+            0% {
+                opacity: 1;
+                box-shadow: 0 3px 0 #080808;
+            }
+            50% {
+                opacity: 1;
+                /* 指定的蓝色呼吸灯效果 */
+                box-shadow: 0 3px 0 #080808, 0 0 25px rgba(80, 180, 255, 0.9);
+                background-color: #253025;
+                color: #c0d8c0;
+            }
+            100% {
+                opacity: 1;
+                box-shadow: 0 3px 0 #080808;
+                background-color: #1e241e;
+                color: #2a322a;
+            }
+        }
+
+        /* 激活单次呼吸灯 */
+        .key.breathe {
+            animation-name: breathe;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 1200px) {
+            .key {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            .keyboard-row:nth-child(2) {
+                margin-left: 18px;
+            }
+            .keyboard-row:nth-child(3) {
+                margin-left: 36px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .key {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+            .keyboard-row:nth-child(2) {
+                margin-left: 12px;
+            }
+            .keyboard-row:nth-child(3) {
+                margin-left: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="keyboard" id="keyboard">
+    <!-- 第一行：Q W E R T Y U I O P -->
+    <div class="keyboard-row">
+        <div class="key" data-key="q">Q</div>
+        <div class="key" data-key="w">W</div>
+        <div class="key" data-key="e">E</div>
+        <div class="key" data-key="r">R</div>
+        <div class="key" data-key="t">T</div>
+        <div class="key" data-key="y">Y</div>
+        <div class="key" data-key="u">U</div>
+        <div class="key" data-key="i">I</div>
+        <div class="key" data-key="o">O</div>
+        <div class="key" data-key="p">P</div>
+    </div>
+
+    <!-- 第二行：A S D F G H J K L -->
+    <div class="keyboard-row">
+        <div class="key" data-key="a">A</div>
+        <div class="key" data-key="s">S</div>
+        <div class="key" data-key="d">D</div>
+        <div class="key" data-key="f">F</div>
+        <div class="key" data-key="g">G</div>
+        <div class="key" data-key="h">H</div>
+        <div class="key" data-key="j">J</div>
+        <div class="key" data-key="k">K</div>
+        <div class="key" data-key="l">L</div>
+    </div>
+
+    <!-- 第三行：Z X C V B N M -->
+    <div class="keyboard-row">
+        <div class="key" data-key="z">Z</div>
+        <div class="key" data-key="x">X</div>
+        <div class="key" data-key="c">C</div>
+        <div class="key" data-key="v">V</div>
+        <div class="key" data-key="b">B</div>
+        <div class="key" data-key="n">N</div>
+        <div class="key" data-key="m">M</div>
+    </div>
+</div>
+
+<script>
+    const keys = document.querySelectorAll('.key');
+    // 存储每个按键的锁定状态（防止动画期间重复触发）
+    const keyLocks = {};
+    // 呼吸灯动画时长（需与CSS中animation-duration一致）
+    const ANIMATION_DURATION = 1200; // 1.2秒
+
+    // 初始化所有按键的锁定状态为false
+    keys.forEach(key => {
+        const keyName = key.dataset.key;
+        keyLocks[keyName] = false;
+    });
+
+    // 触发单次呼吸灯的核心函数
+    function triggerSingleBreathe(keyName) {
+        const keyElement = document.querySelector(`.key[data-key="${keyName}"]`);
+        if (!keyElement || keyLocks[keyName]) return; // 已锁定则不执行
+
+        // 锁定该按键，防止重复触发
+        keyLocks[keyName] = true;
+        // 立即添加按下样式
+        keyElement.classList.add('active');
+        // 触发单次呼吸灯动画
+        keyElement.classList.add('breathe');
+
+        // 监听动画结束事件（兼容不同浏览器）
+        const animationEndHandler = () => {
+            // 移除所有效果类
+            keyElement.classList.remove('active', 'breathe');
+            // 解除锁定
+            keyLocks[keyName] = false;
+            // 移除事件监听，避免重复绑定
+            keyElement.removeEventListener('animationend', animationEndHandler);
+            keyElement.removeEventListener('webkitAnimationEnd', animationEndHandler);
+        };
+
+        // 绑定动画结束事件（兼容webkit内核浏览器）
+        keyElement.addEventListener('animationend', animationEndHandler);
+        keyElement.addEventListener('webkitAnimationEnd', animationEndHandler);
+
+        // 兜底方案：如果动画结束事件未触发，超时后强制解锁
+        setTimeout(() => {
+            if (keyLocks[keyName]) {
+                keyElement.classList.remove('active', 'breathe');
+                keyLocks[keyName] = false;
+            }
+        }, ANIMATION_DURATION + 100); // 多100ms确保动画完成
+    }
+
+    // 键盘按下事件 - 触发单次呼吸灯
+    document.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+        triggerSingleBreathe(key);
+    });
+
+    // 鼠标点击事件 - 触发单次呼吸灯
+    keys.forEach(key => {
+        const keyName = key.dataset.key;
+        key.addEventListener('mousedown', () => {
+            triggerSingleBreathe(keyName);
+        });
+        // 防止鼠标移开时残留状态
+        key.addEventListener('mouseleave', () => {
+            if (!keyLocks[keyName]) {
+                key.classList.remove('active', 'breathe');
+            }
+        });
+    });
+</script>
+</body>
+</html>
