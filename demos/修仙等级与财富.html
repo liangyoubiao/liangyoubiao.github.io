@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修仙等级-财富对照表</title>
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* 表格容器 */
+        .table-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle; /* 单元格内容垂直居中 */
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #444;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 特殊行样式 */
+        .special-row {
+            background-color: #f0f8ff;
+        }
+
+        /* 合并单元格的大等级样式 */
+        .level-cell {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+<div class="table-container">
+    <h1>修仙等级-财富对照表</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>修仙大等级</th>
+            <th>等级细分</th>
+            <th>财富区间</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 练气期 - 合并10行 -->
+        <tr>
+            <td rowspan="10" class="level-cell">练气</td>
+            <td>一层</td>
+            <td>0 ~ 1w</td>
+        </tr>
+        <tr><td>二层</td><td>1 ~ 2w</td></tr>
+        <tr><td>三层</td><td>2 ~ 3w</td></tr>
+        <tr><td>四层</td><td>3 ~ 4w</td></tr>
+        <tr><td>五层</td><td>4 ~ 5w</td></tr>
+        <tr><td>六层</td><td>5 ~ 6w</td></tr>
+        <tr><td>七层</td><td>6 ~ 7w</td></tr>
+        <tr><td>八层</td><td>7 ~ 8w</td></tr>
+        <tr><td>九层</td><td>8 ~ 9w</td></tr>
+        <tr><td>十层</td><td>9 ~ 10w</td></tr>
+
+        <!-- 筑基期 - 合并4行 -->
+        <tr>
+            <td rowspan="4" class="level-cell">筑基</td>
+            <td>初期</td>
+            <td>10 ~ 25w</td>
+        </tr>
+        <tr><td>中期</td><td>25 ~ 50w</td></tr>
+        <tr><td>后期</td><td>50 ~ 75w</td></tr>
+        <tr><td>巅峰</td><td>75 ~ 100w</td></tr>
+
+        <!-- 结丹期 - 合并4行 -->
+        <tr>
+            <td rowspan="4" class="level-cell">结丹</td>
+            <td>初期</td>
+            <td>100 ~ 250w</td>
+        </tr>
+        <tr><td>中期</td><td>250 ~ 500w</td></tr>
+        <tr><td>后期</td><td>500 ~ 750w</td></tr>
+        <tr><td>巅峰</td><td>750 ~ 1000w</td></tr>
+
+        <!-- 元婴期 - 合并4行 -->
+        <tr>
+            <td rowspan="4" class="level-cell">元婴</td>
+            <td>初期</td>
+            <td>1000 ~ 2500w</td>
+        </tr>
+        <tr><td>中期</td><td>2500 ~ 5000w</td></tr>
+        <tr><td>后期</td><td>5000 ~ 7500w</td></tr>
+        <tr><td>巅峰</td><td>7500 ~ 10000w</td></tr>
+
+        <!-- 化神期 - 合并4行 -->
+        <tr>
+            <td rowspan="4" class="level-cell">化神</td>
+            <td>初期</td>
+            <td>1 ~ 25亿</td>
+        </tr>
+        <tr><td>中期</td><td>25 ~ 50亿</td></tr>
+        <tr><td>后期</td><td>50 ~ 75亿</td></tr>
+        <tr><td>巅峰</td><td>75 ~ 100亿</td></tr>
+
+        <!-- 神秘大佬 -->
+        <tr class="special-row">
+            <td class="level-cell">神秘大佬</td>
+            <td>-</td>
+            <td>&gt;100亿</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
