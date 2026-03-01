@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>双峰三角波小球-3s</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0e0e0e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+
+    canvas {
+      background-color: #0e0e0e;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+<canvas id="triangleCanvas" width="300" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById('triangleCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const width = canvas.width;
+  const height = canvas.height;
+
+  const amplitude = 200;           // 山峰高度
+  const duration = 12000;           // 每次循环 16 秒
+  const yOffset = height * 0.8;    // 波谷位置（画布底部偏上）
+
+  // 双峰三角波函数
+  function getTriangleY(xNorm) {
+    if (xNorm < 0.25) {
+      return yOffset - (xNorm / 0.25) * amplitude; // 第一段上升
+    } else if (xNorm < 0.5) {
+      return yOffset - ((0.5 - xNorm) / 0.25) * amplitude; // 第一段下降
+    } else if (xNorm < 0.75) {
+      return yOffset - ((xNorm - 0.5) / 0.25) * amplitude; // 第二段上升
+    } else {
+      return yOffset - ((1 - xNorm) / 0.25) * amplitude; // 第二段下降
+    }
+  }
+
+  // 绘制路径：两个山峰
+  function drawPath() {
+    ctx.beginPath();
+    ctx.moveTo(0, yOffset);
+    ctx.lineTo(width * 0.25, yOffset - amplitude);
+    ctx.lineTo(width * 0.5, yOffset);
+    ctx.lineTo(width * 0.75, yOffset - amplitude);
+    ctx.lineTo(width, yOffset);
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  let startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    let t = (elapsed % duration) / duration; // t ∈ [0, 1]
+
+    const x = t * width;
+    const y = getTriangleY(t);
+
+    ctx.clearRect(0, 0, width, height);
+
+    drawPath();
+
+    // 可选：竖线
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 小球
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#529ca0';
+    ctx.shadowColor = '#529ca0';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+</script>
+</body>
+</html>
