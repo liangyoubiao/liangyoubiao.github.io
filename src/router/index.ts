@@ -27,6 +27,11 @@ export const staticRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/archives.vue'),
   },
   {
+    path: '/calendar/',
+    name: 'calendar',
+    component: () => import('@/pages/Calendar.vue'),
+  },
+  {
     path: '/friends/',
     name: 'friends',
     component: () => import('@/pages/friends.vue'),
