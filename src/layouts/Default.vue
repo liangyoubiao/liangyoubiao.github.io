@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NavBar from '@/components/NavBar.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 import { site } from '@/utils/site'
 
 const year = new Date().getFullYear()
@@ -7,13 +7,26 @@ const year = new Date().getFullYear()
 
 <template>
   <div class="app">
-    <header class="site-header">
-      <div class="site-brand">
-        <RouterLink to="/" class="brand-link">{{ site.title }}</RouterLink>
-        <p class="brand-desc">{{ site.description }}</p>
+    <nav class="matery-nav">
+      <div class="matery-nav-inner">
+        <RouterLink to="/" class="matery-brand">
+          <span class="brand-icon">{{ site.brandIcon }}</span>
+          <span>{{ site.shortTitle }}</span>
+        </RouterLink>
+        <ul class="matery-menu">
+          <li v-for="item in site.nav" :key="item.path">
+            <RouterLink :to="item.path" :exact-active-class="item.path === '/' ? 'router-link-active' : ''">
+              {{ item.name }}
+            </RouterLink>
+          </li>
+        </ul>
+        <a class="nav-search" :href="'https://github.com/liangyoubiao'" target="_blank" rel="noopener" title="GitHub">
+          <svg viewBox="0 0 16 16" width="22" height="22" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+          </svg>
+        </a>
       </div>
-      <NavBar />
-    </header>
+    </nav>
 
     <main class="site-main">
       <slot />
@@ -21,69 +34,70 @@ const year = new Date().getFullYear()
 
     <footer class="site-footer">
       <p>© {{ year }} {{ site.author }} · Powered by Vue 3 + Vite + vite-ssg</p>
-      <p class="footer-meta">从 Hexo 静态博客迁移而来 · 当前为最基础版本</p>
+      <p class="footer-meta">Matery 视觉风格复刻 · 从 Hexo 迁移</p>
     </footer>
+
+    <ProgressBar />
   </div>
 </template>
 
 <style scoped>
 .app {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 1.25rem;
-}
-
-.site-header {
-  padding: 2.5rem 0 1.5rem;
-  border-bottom: 1px solid #eaeaea;
-  margin-bottom: 2rem;
-}
-
-.site-brand {
-  margin-bottom: 1rem;
-}
-
-.brand-link {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #2c3e50;
-  text-decoration: none;
-}
-
-.brand-desc {
-  color: #888;
-  font-size: 0.9rem;
-  margin: 0.25rem 0 0;
+  background-color: var(--matery-bg);
 }
 
 .site-main {
   flex: 1;
 }
 
+.brand-icon {
+  font-size: 1.6rem;
+}
+
+.nav-search {
+  color: var(--matery-text);
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-search:hover { color: var(--matery-primary); }
+
 .site-footer {
-  border-top: 1px solid #eaeaea;
-  padding: 1.5rem 0;
+  border: 0;
+  padding: 2rem 0;
   margin-top: 3rem;
   text-align: center;
   color: #888;
   font-size: 0.85rem;
+  background-color: #fff;
+  box-shadow: 0 -2px 5px 0 rgba(0, 0, 0, 0.06);
 }
 
 .footer-meta {
   margin: 0.25rem 0 0;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   opacity: 0.7;
 }
 
-@media (max-width: 640px) {
-  .app {
-    padding: 0 1rem;
+@media (max-width: 768px) {
+  .matery-menu {
+    gap: 0.8rem;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: nowrap;
   }
-  .site-header {
-    padding: 1.5rem 0 1rem;
+  .matery-nav-inner {
+    padding: 0 1rem;
+    gap: 0.8rem;
+  }
+  .matery-brand {
+    font-size: 1.15rem;
   }
 }
 </style>
+

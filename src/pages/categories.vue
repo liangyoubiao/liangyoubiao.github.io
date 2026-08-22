@@ -11,60 +11,52 @@ const categories = Object.keys(grouped).sort()
 </script>
 
 <template>
-  <section>
-    <h1>分类</h1>
-    <p v-if="!categories.length" class="empty">暂无分类。</p>
-    <div v-for="cat in categories" :key="cat" class="cat-block">
-      <h2>{{ cat }} <span class="count">({{ grouped[cat].length }})</span></h2>
-      <ul>
-        <li v-for="p in grouped[cat]" :key="p.slug">
-          <RouterLink :to="p.url">{{ p.title }}</RouterLink>
-        </li>
-      </ul>
-    </div>
-  </section>
+  <div>
+    <header class="page-banner">
+      <div class="matery-container">
+        <h1>📂 文章分类</h1>
+        <p>共 {{ categories.length }} 个分类</p>
+      </div>
+    </header>
+
+    <article class="matery-container">
+      <p v-if="!categories.length" class="empty">暂无分类。</p>
+      <div v-for="cat in categories" :key="cat" class="cat-block">
+        <h2 class="archive-year">{{ cat }} <span class="count">({{ grouped[cat].length }})</span></h2>
+        <RouterLink
+          v-for="p in grouped[cat]"
+          :key="p.slug"
+          :to="p.url"
+          class="archive-item"
+        >
+          <time>{{ new Date(p.date).toISOString().slice(0, 10) }}</time>
+          <span class="archive-title">{{ p.title }}</span>
+        </RouterLink>
+      </div>
+    </article>
+  </div>
 </template>
 
 <style scoped>
-h1 {
-  font-size: 1.5rem;
-  margin: 0 0 1rem;
+.empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #999;
 }
 
 .cat-block {
-  margin-bottom: 1.5rem;
-}
-
-.cat-block h2 {
-  font-size: 1.15rem;
-  margin: 0 0 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .count {
-  color: #999;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: normal;
+  opacity: 0.85;
 }
 
-ul {
-  margin: 0;
-  padding-left: 1.25rem;
-}
-
-li {
-  margin: 0.25rem 0;
-}
-
-a {
-  color: #409eff;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-.empty {
-  color: #999;
+.archive-title {
+  flex: 1;
+  color: var(--matery-text);
 }
 </style>
+

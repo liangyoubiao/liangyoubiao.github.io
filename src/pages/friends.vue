@@ -12,33 +12,34 @@ const friends = friendsData as Friend[]
 </script>
 
 <template>
-  <section>
-    <h1>友情链接</h1>
-    <p class="hint">欢迎互换友链,可在 <code>src/data/friends.json</code> 中添加。</p>
-    <ul class="friend-grid">
-      <li v-for="f in friends" :key="f.url" class="friend-card">
-        <a :href="f.url" target="_blank" rel="noopener">
+  <div>
+    <header class="page-banner">
+      <div class="matery-container">
+        <h1>🤝 友情链接</h1>
+        <p>共 {{ friends.length }} 位朋友</p>
+      </div>
+    </header>
+
+    <article class="matery-container">
+      <p class="hint">欢迎互换友链,可在 <code>src/data/friends.json</code> 中添加。</p>
+      <div class="friend-grid">
+        <a v-for="f in friends" :key="f.url" :href="f.url" target="_blank" rel="noopener" class="friend-card">
           <img v-if="f.avatar" :src="f.avatar" :alt="f.name" class="avatar" />
           <div class="meta">
             <h3>{{ f.name }}</h3>
             <p v-if="f.introduction">{{ f.introduction }}</p>
           </div>
         </a>
-      </li>
-    </ul>
-  </section>
+      </div>
+    </article>
+  </div>
 </template>
 
 <style scoped>
-h1 {
-  font-size: 1.5rem;
-  margin: 0 0 0.5rem;
-}
-
 .hint {
   color: #888;
   font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  margin: 1.5rem 0;
 }
 
 .hint code {
@@ -48,49 +49,26 @@ h1 {
 }
 
 .friend-grid {
-  list-style: none;
-  padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
+  padding-bottom: 2rem;
 }
 
-.friend-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.friend-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  transform: translateY(-2px);
-}
-
-.friend-card a {
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.9rem;
-  text-decoration: none;
-  color: inherit;
-}
-
-.avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.meta h3 {
+.friend-card .meta h3 {
   margin: 0;
-  font-size: 1rem;
-  color: #2c3e50;
+  font-size: 1.05rem;
+  color: var(--matery-text);
 }
 
-.meta p {
-  margin: 0.25rem 0 0;
+.friend-card .meta p {
+  margin: 0.3rem 0 0;
   font-size: 0.85rem;
   color: #888;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
+

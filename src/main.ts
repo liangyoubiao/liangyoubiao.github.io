@@ -3,6 +3,7 @@ import App from './App.vue'
 import { staticRoutes } from './router'
 import { getAllPosts, getAllTags } from './utils/posts'
 import './assets/main.css'
+import './assets/matery.css'
 
 // Build dynamic routes from Markdown content
 const posts = getAllPosts()
@@ -22,3 +23,4 @@ export const createApp = ViteSSG(
   App,
   { routes: [...staticRoutes, ...postRoutes, ...tagRoutes] },
 )
+

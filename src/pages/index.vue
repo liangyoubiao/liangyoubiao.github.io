@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Banner from '@/components/Banner.vue'
 import PostCard from '@/components/PostCard.vue'
 import { getAllPosts } from '@/utils/posts'
 
@@ -6,24 +7,26 @@ const posts = getAllPosts()
 </script>
 
 <template>
-  <section class="home">
-    <h1 class="page-title">最新文章</h1>
-    <p v-if="!posts.length" class="empty">还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
-    <div v-else class="post-list">
-      <PostCard v-for="post in posts" :key="post.slug" :post="post" />
+  <Banner />
+
+  <article id="articles" class="container articles">
+    <div class="row article-row">
+      <div v-for="post in posts" :key="post.slug" class="article-col">
+        <PostCard :post="post" />
+      </div>
+      <div v-if="!posts.length" class="empty">
+        <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
+      </div>
     </div>
-  </section>
+  </article>
 </template>
 
 <style scoped>
-.page-title {
-  font-size: 1.5rem;
-  margin: 0 0 1rem;
-}
-
 .empty {
+  text-align: center;
+  padding: 4rem 1rem;
   color: #999;
-  font-size: 0.95rem;
+  width: 100%;
 }
 
 .empty code {
@@ -32,8 +35,5 @@ const posts = getAllPosts()
   border-radius: 4px;
   font-size: 0.9em;
 }
-
-.post-list {
-  margin-top: 1rem;
-}
 </style>
+

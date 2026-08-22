@@ -8,56 +8,32 @@ for (const t of tags) counts[t] = posts.filter((p) => p.tags?.includes(t)).lengt
 </script>
 
 <template>
-  <section>
-    <h1>标签</h1>
-    <p v-if="!tags.length" class="empty">暂无标签。</p>
-    <ul class="tag-cloud">
-      <li v-for="tag in tags" :key="tag">
-        <RouterLink :to="`/tags/${encodeURIComponent(tag)}/`" class="tag">
-          #{{ tag }} <span class="count">{{ counts[tag] }}</span>
-        </RouterLink>
-      </li>
-    </ul>
-  </section>
+  <div>
+    <header class="page-banner">
+      <div class="matery-container">
+        <h1>🏷️ 标签</h1>
+        <p>共 {{ tags.length }} 个标签 · {{ posts.length }} 篇文章</p>
+      </div>
+    </header>
+
+    <article class="matery-container">
+      <p v-if="!tags.length" class="empty">暂无标签。</p>
+      <ul v-else class="tag-cloud">
+        <li v-for="tag in tags" :key="tag">
+          <RouterLink :to="`/tags/${encodeURIComponent(tag)}/`" class="chip">
+            #{{ tag }} <span style="opacity: 0.8; margin-left: 0.25rem">{{ counts[tag] }}</span>
+          </RouterLink>
+        </li>
+      </ul>
+    </article>
+  </div>
 </template>
 
 <style scoped>
-h1 {
-  font-size: 1.5rem;
-  margin: 0 0 1rem;
-}
-
-.tag-cloud {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.tag {
-  display: inline-block;
-  padding: 0.3rem 0.75rem;
-  background: #f0f7ff;
-  border: 1px solid #d6e8ff;
-  border-radius: 999px;
-  color: #409eff;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.tag:hover {
-  background: #409eff;
-  color: #fff;
-}
-
-.count {
-  margin-left: 0.25rem;
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
-
 .empty {
+  text-align: center;
+  padding: 4rem 1rem;
   color: #999;
 }
 </style>
+

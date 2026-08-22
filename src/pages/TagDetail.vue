@@ -10,33 +10,31 @@ const posts = computed(() => getPostsByTag(tag.value))
 </script>
 
 <template>
-  <section>
-    <h1>标签:#{{ tag }}</h1>
-    <p class="count">共 {{ posts.length }} 篇文章</p>
-    <div v-if="posts.length" class="post-list">
-      <PostCard v-for="post in posts" :key="post.slug" :post="post" />
-    </div>
-    <p v-else class="empty">该标签下暂无文章。</p>
-  </section>
+  <div>
+    <header class="page-banner">
+      <div class="matery-container">
+        <h1>#{{ tag }}</h1>
+        <p>共 {{ posts.length }} 篇文章</p>
+      </div>
+    </header>
+
+    <article id="articles" class="container articles">
+      <div class="row article-row">
+        <div v-for="post in posts" :key="post.slug" class="article-col">
+          <PostCard :post="post" />
+        </div>
+        <p v-if="!posts.length" class="empty">该标签下暂无文章。</p>
+      </div>
+    </article>
+  </div>
 </template>
 
 <style scoped>
-h1 {
-  font-size: 1.5rem;
-  margin: 0 0 0.25rem;
-}
-
-.count {
-  color: #888;
-  font-size: 0.9rem;
-  margin: 0 0 1rem;
-}
-
-.post-list {
-  margin-top: 1rem;
-}
-
 .empty {
+  text-align: center;
+  padding: 4rem 1rem;
   color: #999;
+  width: 100%;
 }
 </style>
+
