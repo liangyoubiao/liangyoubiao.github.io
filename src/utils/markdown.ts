@@ -106,7 +106,8 @@ await md.use(await Shiki({
     light: 'github-light',
     dark: 'github-dark',
   },
-  langs: COMMON_LANGS,
+  // 简化的 lang 列表字符串,Shiki 接受 string[] 这里类型不完全匹配
+  langs: COMMON_LANGS as any[],
   langAlias: {
     angular2html: 'html',
     sh: 'bash',
@@ -122,18 +123,18 @@ await md.use(await Shiki({
     cs: 'csharp',
     'c++': 'cpp',
   },
-  defaultLanguage: 'plaintext',
-  fallbackLanguage: 'plaintext',
+  defaultLanguage: 'plaintext' as any,
+  fallbackLanguage: 'plaintext' as any,
   transformers: [addCopyButton],
 }))
 
-// 重写图片规则:加 loading="lazy" + lightGallery 包装
-// lightGallery 通过 <a data-lb-size="..." class="lightbox-item"> 抓取大图
+// 重写图片规则:加 loading="lazy" + lightbox 包装
 md.renderer.rules.image = (tokens, idx) => {
   const token = tokens[idx]
   const src = token.attrGet('src') || ''
   const alt = (token.content || '').replace(/"/g, '&quot;')
-  const title = (token.attrGet('title') || alt).replace(/"/g, '&quot;')
+  const titleAttr = token.attrGet('title')
+  const title = (typeof titleAttr === 'string' ? titleAttr : alt).replace(/"/g, '&quot;')
   if (!src) return token.content
   return `<a href="${src}" class="lightbox-item" data-lb-size="1280-720" data-sub-html="${title}">` +
          `<img src="${src}" alt="${alt}" loading="lazy" class="lazy-img" decoding="async" />` +

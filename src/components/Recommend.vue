@@ -37,9 +37,9 @@ const items = computed(() => props.posts.map((p, i) => {
   }
 }))
 
-function getCoverStyle(cover) { return { background: 'url(' + cover + ') center/cover, var(--matery-gradient)' } }
+function getCoverStyle(cover: string) { return { background: 'url(' + cover + ') center/cover, var(--matery-gradient)' } }
 
-function extractExcerpt(md) {
+function extractExcerpt(md: string) {
   return md
     .replace(/```[\s\S]*?```/g, '')
     .replace(/!?\[.*?\]\(.*?\)/g, '')
@@ -237,6 +237,7 @@ const dateText = (date: string) => {
   .recommend-grid { grid-template-columns: 1fr; }
 }
 </style>
+
 
 
 

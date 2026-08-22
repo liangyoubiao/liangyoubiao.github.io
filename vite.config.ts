@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import matter from 'gray-matter'
@@ -10,7 +11,12 @@ const ROOT = new URL('./', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '
 const POSTS_DIR = join(ROOT, 'src/content/posts')
 const GENERATED_FILE = join(ROOT, 'src/__generated_routes.ts')
 
-function fixDates(obj) {
+/**
+ * gray-matter 把 YAML 时间戳解析成 Date 对象(UTC),
+ * 但前端要按本地时间解释,这里把所有 Date 递归替换成本地字符串。
+ * 类型上无法精确推导递归结构,直接用 any。
+ */
+function fixDates(obj: any): any {
   if (obj === null || obj === undefined) return obj
   if (obj instanceof Date) {
     const y = obj.getUTCFullYear()
@@ -23,55 +29,71 @@ function fixDates(obj) {
   }
   if (Array.isArray(obj)) return obj.map(fixDates)
   if (typeof obj === 'object') {
-    const out = {}
+    const out: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(obj)) out[k] = fixDates(v)
     return out
   }
   return obj
 }
 
-function pad(n) { return n.toString().padStart(2, '0') }
+function pad(n: number): string {
+  return n.toString().padStart(2, '0')
+}
 
-function buildUrl(slug, date) {
+function buildUrl(slug: string, date: string): string {
   const d = new Date(date)
   if (Number.isNaN(d.getTime())) return `/posts/${slug}/`
   return `/${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${slug}/`
 }
 
-function isTrue(v) { return v === true || v === 'true' || v === '是' || v === 1 }
+function isTrue(v: unknown): boolean {
+  return v === true || v === 'true' || v === '是' || v === 1
+}
 
-function buildRoutes() {
-  const posts = []
+interface GeneratedPost {
+  title: string
+  slug: string
+  date: string
+  tags: string[]
+  categories?: string | string[]
+  cover?: string
+  top?: boolean
+  description?: string
+  url: string
+}
+
+function buildRoutes(): { posts: GeneratedPost[]; tags: string[] } {
+  const posts: GeneratedPost[] = []
   for (const file of readdirSync(POSTS_DIR)) {
     if (!file.endsWith('.md')) continue
     const raw = readFileSync(join(POSTS_DIR, file), 'utf-8')
     const { data } = matter(raw)
     const fixed = fixDates(data)
     const slug = file.replace(/\.md$/, '')
-    const date = fixed.date ? new Date(fixed.date).toISOString() : new Date().toISOString()
+    const date = fixed.date ? new Date(fixed.date as string).toISOString() : new Date().toISOString()
     posts.push({
-      title: fixed.title || slug,
+      title: (fixed.title as string) || slug,
       slug,
       date,
-      tags: Array.isArray(fixed.tags) ? fixed.tags : [],
-      categories: fixed.categories,
-      cover: fixed.cover,
+      tags: Array.isArray(fixed.tags) ? (fixed.tags as string[]) : [],
+      categories: fixed.categories as string | string[] | undefined,
+      cover: fixed.cover as string | undefined,
       top: isTrue(fixed.top),
-      description: fixed.description || '',
+      description: (fixed.description as string) || '',
       url: buildUrl(slug, date),
     })
   }
   posts.sort((a, b) => +new Date(b.date) - +new Date(a.date))
-  const tagSet = new Set()
+  const tagSet = new Set<string>()
   for (const p of posts) p.tags.forEach((t) => tagSet.add(t))
   return { posts, tags: [...tagSet].sort() }
 }
 
-function mdAsData() {
+function mdAsData(): Plugin {
   return {
     name: 'md-as-data',
     enforce: 'pre',
-    transform(_code, id) {
+    transform(_code: string, id: string) {
       if (!id.endsWith('.md') || id.includes('node_modules')) return null
       const raw = readFileSync(id, 'utf-8')
       const parsed = matter(raw)
@@ -85,7 +107,7 @@ function mdAsData() {
   }
 }
 
-function generateRoutes() {
+function generateRoutes(): Plugin {
   return {
     name: 'generate-routes',
     buildStart() {
@@ -116,15 +138,15 @@ export const generatedTags: string[] = ${JSON.stringify(tags, null, 2)}
   }
 }
 
-function setHtmlLang(lang) {
+function setHtmlLang(lang: string): Plugin {
   return {
     name: `set-html-lang-${lang}`,
     transformIndexHtml: {
       order: 'pre',
-      handler(html) {
+      handler(html: string): string {
         return html.replace(
           /<html(\s[^>]*)?>/i,
-          (match, attrs) => {
+          (match: string, attrs?: string) => {
             const a = attrs || ' '
             if (/lang=/i.test(a)) {
               return '<html' + a.replace(/lang="[^"]*"/i, 'lang="' + lang + '"') + '>'
@@ -150,7 +172,7 @@ export default defineConfig({
       manifest: {
         name: 'LiangYouBiao 的博客',
         short_name: 'LiangYouBiao 博客',
-        description: '从 Hexo 迁移到 Vue 3 的个人博客',
+        description: 'LiangYouBiao 的个人博客 — 记录学习与生活的点滴',
         theme_color: '#0f9d58',
         background_color: '#eaeaea',
         display: 'standalone',
@@ -158,7 +180,7 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         lang: 'zh-CN',
-        display_override: ['window-control-overlay', 'standalone', 'browser'],
+        display_override: ['window-controls-overlay', 'standalone', 'browser'],
         icons: [
           { src: '/pwa-192x192.webp', sizes: '192x192', type: 'image/webp' },
           { src: '/pwa-512x512.webp', sizes: '512x512', type: 'image/webp' },
@@ -180,6 +202,9 @@ export default defineConfig({
   base: '/',
   server: { host: '127.0.0.1', port: 5173, strictPort: false },
   preview: { host: '127.0.0.1', port: 5050, strictPort: false },
+  // @ts-expect-error - ssgOptions 是 vite-ssg 扩展
   ssgOptions: { script: 'async', formatting: 'minify', crittersOptions: false },
 })
+
+
 

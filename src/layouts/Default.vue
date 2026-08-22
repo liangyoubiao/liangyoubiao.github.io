@@ -37,7 +37,7 @@ const year = new Date().getFullYear()
     </main>
 
     <footer class="site-footer">
-      <p>© {{ year }} {{ site.author }} · 记录生活 · 分享思考</p>
+      <p>© {{ year }} {{ site.author }} · 记录生活 · 记录自己</p>
       <p class="footer-meta"></p>
       <p class="footer-stats">
         <span class="stat-item" title="本站总访问量">

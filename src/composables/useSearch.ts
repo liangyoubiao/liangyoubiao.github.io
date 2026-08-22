@@ -1,5 +1,4 @@
 import { ref, computed, shallowRef } from 'vue'
-// @ts-expect-error - flexsearch has no types
 import FlexSearch from 'flexsearch'
 
 export interface SearchDoc {
@@ -28,7 +27,6 @@ export function useSearch() {
         const res = await fetch('/search-data.json')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         docs = await res.json()
-        // @ts-expect-error - flexsearch types
         index = new FlexSearch.Document({
           tokenize: 'forward',
           cache: true,
@@ -82,4 +80,7 @@ function computeHit(doc: SearchDoc, q: string) {
   const lower = q.toLowerCase()
   return doc
 }
+
+
+
 
