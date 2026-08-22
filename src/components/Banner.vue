@@ -8,6 +8,7 @@ interface Props {
   postTitle?: boolean
   height?: 'index' | 'post'
   banners?: string[]
+  showAvatar?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -16,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
   postTitle: false,
   height: 'index',
   banners: () => site.banners,
+  showAvatar: true,
 })
 
 const subList = Array.isArray(props.subtitle) ? props.subtitle : [props.subtitle || site.description]
@@ -58,6 +60,12 @@ function scrollDown(e: Event) {
 
     <div class="container">
       <div v-if="!postTitle" class="brand">
+        <img
+          v-if="showAvatar && site.avatar"
+          :src="site.avatar"
+          :alt="site.author"
+          class="brand-avatar"
+        />
         <div class="title center-align">{{ title }}</div>
         <div class="description center-align">
           <span>{{ text }}</span><span v-if="cursorVisible" class="typed-cursor">|</span>
@@ -68,13 +76,27 @@ function scrollDown(e: Event) {
       </div>
 
       <div v-if="!postTitle" class="cover-btns">
-        <a href="#articles" @click="scrollDown" class="waves-effect">
-          <span>开始阅读</span>
-          <span style="margin-left: 0.5rem">↓</span>
-        </a>
-        <a :href="site.githubUrl" target="_blank" rel="noopener">
-          <span>GitHub</span>
-        </a>
+        <template v-for="btn in site.bannerButtons" :key="btn.href">
+          <a
+            v-if="btn.href.startsWith('#')"
+            :href="btn.href"
+            @click="scrollDown"
+            class="waves-effect"
+          >
+            <span v-if="btn.icon">{{ btn.icon }}</span>
+            <span>{{ btn.text }}</span>
+          </a>
+          <a
+            v-else
+            :href="btn.href"
+            target="_blank"
+            rel="noopener"
+            class="waves-effect"
+          >
+            <span v-if="btn.icon">{{ btn.icon }}</span>
+            <span>{{ btn.text }}</span>
+          </a>
+        </template>
       </div>
 
       <div v-if="!postTitle" class="cover-social-link">
@@ -95,6 +117,20 @@ function scrollDown(e: Event) {
   padding: 0 1.5rem;
 }
 
+.brand-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1.25rem;
+  display: block;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.4s;
+}
+
+.brand-avatar:hover { transform: scale(1.05) rotate(3deg); }
+
 .typed-cursor {
   display: inline-block;
   margin-left: 2px;
@@ -108,7 +144,6 @@ function scrollDown(e: Event) {
   51%, 100% { opacity: 0; }
 }
 
-/* ====== 轮播背景层(7 张图 6s 循环交叉淡入) ====== */
 .bg-stack {
   position: absolute;
   inset: 0;
@@ -156,6 +191,7 @@ function scrollDown(e: Event) {
   .bg-cover .title { font-size: 2.5rem; }
   .bg-cover .post-title { font-size: 1.75rem; }
   .bg-cover .description { font-size: 1rem; }
+  .brand-avatar { width: 90px; height: 90px; }
   .cover-btns a {
     margin: 6px 6px;
     padding: 0 20px;
