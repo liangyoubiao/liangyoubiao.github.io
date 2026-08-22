@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>478呼吸进度条</title>
+    <style>
+        body {
+            background-color: #0D0D0D;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .progress-row {
+            display: flex;
+            width: 25%;
+            height: 8px;
+            gap: 15px;
+        }
+
+        .progress-segment {
+            flex-grow: 1;
+            height: 100%;
+            background-color: #333;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 第一种颜色（#61bea2，对应odd）- 保持渐变结构以兼容原有样式 */
+        .progress-fill.color1 {
+            background-image: linear-gradient(90deg, #61bea2, #61bea2, #61bea2);
+            background-size: 200% 100%;
+        }
+
+        /*!* 第一种颜色（#61bea2，对应odd）- 保持渐变结构以兼容原有样式 *!*/
+        /*.progress-fill.color1 {*/
+        /*    background-image: linear-gradient(90deg, #61bea2, #61bea2, #61bea2);*/
+        /*    background-size: 200% 100%;*/
+        /*}*/
+
+
+        /*!* 第一种颜色（淡竹绿色，护眼系）- 保持渐变结构以兼容原有样式 *!*/
+        /*.progress-fill.color1 {*/
+        /*    background-image: linear-gradient(90deg, #82c99a, #82c99a, #82c99a);*/
+        /*    background-size: 200% 100%;*/
+        /*}*/
+
+        /*!* 第一种颜色（柔和薄荷绿，护眼系）- 保持渐变结构以兼容原有样式 *!*/
+        /*.progress-fill.color1 {*/
+        /*    background-image: linear-gradient(90deg, #70c6a6, #70c6a6, #70c6a6);*/
+        /*    background-size: 200% 100%;*/
+        /*}*/
+
+        /*!* 第一种颜色（淡竹绿色，护眼系）- 保持渐变结构以兼容原有样式 *!*/
+        /*.progress-fill.color1 {*/
+        /*    background-image: linear-gradient(90deg, #82c99a, #82c99a, #82c99a);*/
+        /*    background-size: 200% 100%;*/
+        /*}*/
+
+        /*!* 第一种颜色（淡竹绿色，护眼系）- 保持渐变结构以兼容原有样式 *!*/
+        /*.progress-fill.color1 {*/
+        /*    background-image: linear-gradient(90deg, #82c99a, #82c99a, #82c99a);*/
+        /*    background-size: 200% 100%;*/
+        /*}*/
+
+        /* 第一种颜色（浅湖蓝色，护眼系）- 保持渐变结构以兼容原有样式 */
+        .progress-fill.color1 {
+            background-image: linear-gradient(90deg, #6bc1a3, #6bc1a3, #6bc1a3);
+            background-size: 200% 100%;
+        }
+
+
+        /* 第二种颜色（#529ca0，对应even）- 保持渐变结构以兼容原有样式 */
+        .progress-fill.color2 {
+            background-image: linear-gradient(90deg, #529ca0, #529ca0, #529ca0);
+            background-size: 200% 100%;
+        }
+
+
+
+        .progress-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.1s linear, border-radius 0.3s ease;
+            opacity: 1;
+        }
+
+        /* 不同段的背景位置微调（保持原有视觉差异） */
+        #inhaleSegment .progress-fill.color1 { background-position: 0% 50%; }
+        #holdSegment .progress-fill.color1 { background-position: 50% 50%; }
+        #exhaleSegment .progress-fill.color1 { background-position: 100% 50%; }
+
+        #inhaleSegment .progress-fill.color2 { background-position: 0% 50%; }
+        #holdSegment .progress-fill.color2 { background-position: 50% 50%; }
+        #exhaleSegment .progress-fill.color2 { background-position: 100% 50%; }
+    </style>
+</head>
+<body>
+
+<div class="progress-row">
+    <!-- 为每个段添加id，方便获取容器 -->
+    <div id="inhaleSegment" class="progress-segment" style="flex: 4;">
+        <!-- 初始填充层（颜色1） -->
+        <div class="progress-fill color1" data-segment="inhale"></div>
+    </div>
+    <div id="holdSegment" class="progress-segment" style="flex: 7;">
+        <div class="progress-fill color1" data-segment="hold"></div>
+    </div>
+    <div id="exhaleSegment" class="progress-segment" style="flex: 8;">
+        <div class="progress-fill color1" data-segment="exhale"></div>
+    </div>
+</div>
+
+<script>
+    // 配置呼吸时间（毫秒）
+    const BREATH_CONFIG = {
+        inhale: 4000,
+        hold: 7000,
+        exhale: 8000,
+        interval: 500 // 每轮结束后间隔
+    };
+
+    // 进度段顺序
+    const SEGMENT_ORDER = ['inhale', 'hold', 'exhale'];
+
+    /**
+     * 动画进度填充
+     * @param {HTMLElement} element 填充元素
+     * @param {number} duration 填充时长
+     * @param {Function} onComplete 完成回调
+     */
+    function animateProgress(element, duration, onComplete) {
+        let progress = 0;
+        const steps = 100;
+        const intervalTime = duration / steps;
+
+        const interval = setInterval(() => {
+            progress++;
+            element.style.width = `${progress}%`;
+            if (progress >= 100) {
+                clearInterval(interval);
+                onComplete && onComplete();
+            }
+        }, intervalTime);
+    }
+
+    /**
+     * 创建新的填充层
+     * @param {string} segment 进度段名称（inhale/hold/exhale）
+     * @param {string} colorClass 颜色类名（color1/color2）
+     * @returns {HTMLElement} 新填充元素
+     */
+    function createNewFillLayer(segment, colorClass) {
+        const segmentElement = document.getElementById(`${segment}Segment`);
+        const newFill = document.createElement('div');
+        newFill.className = `progress-fill ${colorClass}`;
+        newFill.dataset.segment = segment;
+        // 新层添加到容器中（会叠加在原有层上方）
+        segmentElement.appendChild(newFill);
+        return newFill;
+    }
+
+    /**
+     * 执行呼吸循环（递归）
+     * @param {number} colorIndex 颜色索引（0: color1, 1: color2）
+     * @param {number} segmentIndex 进度段索引
+     * @param {HTMLElement|null} currentFill 当前填充元素
+     */
+    function runBreathCycle(colorIndex = 0, segmentIndex = 0, currentFill = null) {
+        const currentSegment = SEGMENT_ORDER[segmentIndex];
+        const colorClass = `color${colorIndex + 1}`; // 转换为color1/color2
+
+        // 如果是新的轮次/新的进度段，创建新的填充层
+        if (!currentFill) {
+            currentFill = createNewFillLayer(currentSegment, colorClass);
+        }
+
+        // 执行当前段的填充动画
+        animateProgress(currentFill, BREATH_CONFIG[currentSegment], () => {
+            const nextSegmentIndex = segmentIndex + 1;
+            if (nextSegmentIndex < SEGMENT_ORDER.length) {
+                // 进入下一个进度段
+                runBreathCycle(colorIndex, nextSegmentIndex, null);
+            } else {
+                // 所有段填充完成，切换颜色，重置段索引，延迟后开始下一轮
+                const nextColorIndex = (colorIndex + 1) % 2; // 0和1循环
+                setTimeout(() => {
+                    runBreathCycle(nextColorIndex, 0, null);
+                }, BREATH_CONFIG.interval);
+            }
+        });
+    }
+
+    // 页面加载后启动循环
+    window.onload = () => {
+        runBreathCycle();
+    };
+</script>
+
+</body>
+</html>

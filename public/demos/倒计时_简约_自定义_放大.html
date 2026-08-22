@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>倒计时</title>
+    <style>
+        body {
+            background-color: #121212;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer-box {
+            background-color: #1e1e1e;
+            padding: 60px 80px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+        }
+
+        .timer {
+            font-size: 8rem;
+            /*color: #4CAF50;*/
+            color: #444;
+        }
+
+        .selector {
+            margin-bottom: 30px;
+            color: #555;
+            font-size: 1.2rem;
+        }
+
+        input[type="number"] {
+            font-size: 1.1rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: #1e1e1e;
+            color: #555;
+            border: 1px solid #333;
+            outline: none;
+            width: 80px;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .button {
+            background-color: #333;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #888;
+        }
+
+        .button:active {
+            background-color: #555;
+        }
+
+        .button:disabled {
+            background-color: #222;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="selector">
+        倒计时设置（分钟）：
+        <input type="number" id="timeInput" min="1" value="10">
+    </div>
+
+    <div class="timer-box">
+        <div id="timer" class="timer">10:00</div>
+    </div>
+
+    <div class="buttons">
+        <button id="startButton" class="button">开始</button>
+        <button id="resetButton" class="button" disabled>重置</button>
+    </div>
+</div>
+
+<script>
+    let timerInterval;
+    let totalTime = 600; // 默认 10 分钟
+    let initialTime = 600;
+    let isRunning = false;
+
+    const timerElement = document.getElementById('timer');
+    const startButton = document.getElementById('startButton');
+    const resetButton = document.getElementById('resetButton');
+    const timeInput = document.getElementById('timeInput');
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secondsLeft = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(secondsLeft).padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+        if (isRunning) return;
+
+        isRunning = true;
+        startButton.textContent = '暂停';
+        resetButton.disabled = false;
+
+        timerInterval = setInterval(() => {
+            totalTime--;
+            timerElement.textContent = formatTime(totalTime);
+
+            if (totalTime <= 0) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                startButton.textContent = '开始';
+                resetButton.disabled = false;
+                resetTimer();
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        startButton.textContent = '开始';
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        totalTime = initialTime;
+        timerElement.textContent = formatTime(totalTime);
+        startButton.textContent = '开始';
+        resetButton.disabled = true;
+    }
+
+    // 监听输入框变化
+    timeInput.addEventListener('change', () => {
+        const inputMinutes = parseInt(timeInput.value);
+        if (isNaN(inputMinutes) || inputMinutes < 1) {
+            timeInput.value = 1;
+            initialTime = 60;
+        } else {
+            initialTime = inputMinutes * 60;
+        }
+        totalTime = initialTime;
+        resetTimer();
+    });
+
+    startButton.addEventListener('click', () => {
+        if (isRunning) {
+            stopTimer();
+        } else {
+            startTimer();
+        }
+    });
+
+    resetButton.addEventListener('click', resetTimer);
+</script>
+
+</body>
+</html>

@@ -32,6 +32,11 @@ export const staticRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/friends.vue'),
   },
   {
+    path: '/demos/',
+    name: 'demos',
+    component: () => import('@/pages/demos.vue'),
+  },
+  {
     path: '/contact/',
     name: 'contact',
     component: () => import('@/pages/contact.vue'),
@@ -42,3 +47,4 @@ export const staticRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/404.vue'),
   },
 ]
+

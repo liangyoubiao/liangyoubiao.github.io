@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>有道发音学习工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* 高亮当前播放行 - 更温馨护眼的颜色 */
+        .active-row { background-color: #fff8dc; /* 柔和米黄 */ }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+<div class="w-full max-w-2xl bg-white rounded-2xl shadow p-6 space-y-4">
+    <h1 class="text-2xl font-bold">有道发音学习工具</h1>
+
+    <!-- 输入区 -->
+    <label class="block text-sm font-medium mb-1">粘贴单词列表（支持序号和音标，会保留音标）：</label>
+    <textarea id="wordInput" class="w-full h-48 p-2 border rounded resize-y text-sm" placeholder="181. button   [ˈbʌtn]\n182. index   [ˈɪndeks]\n..."></textarea>
+
+    <!-- 口音选择（默认英音） -->
+    <div class="flex items-center gap-4">
+        <span class="text-sm font-medium">口音：</span>
+        <label class="flex items-center gap-1 text-sm">
+            <input type="radio" name="accent" value="0"> 美音
+        </label>
+        <label class="flex items-center gap-1 text-sm">
+            <input type="radio" name="accent" value="1" checked> 英音
+        </label>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="flex gap-4">
+        <button id="parseBtn" class="flex-1 bg-emerald-600 text-white rounded-xl py-2 hover:bg-emerald-700">解析</button>
+        <button id="playAllBtn" class="flex-1 bg-blue-600 text-white rounded-xl py-2 hover:bg-blue-700" disabled>播放全部</button>
+        <button id="stopBtn" class="flex-1 bg-gray-300 rounded-xl py-2 hover:bg-gray-400" disabled>停止</button>
+    </div>
+
+    <!-- 播放状态提示（已隐藏） -->
+    <div id="nowPlaying" class="text-center text-lg font-semibold text-blue-600 hidden"></div>
+
+    <!-- 单词列表展示 -->
+    <div id="wordList" class="border rounded p-2 max-h-96 overflow-y-auto text-sm"></div>
+
+    <audio id="player"></audio>
+</div>
+
+<script>
+    (function () {
+        const txtInput   = document.getElementById('wordInput');
+        const parseBtn   = document.getElementById('parseBtn');
+        const playAllBtn = document.getElementById('playAllBtn');
+        const stopBtn    = document.getElementById('stopBtn');
+        const wordList   = document.getElementById('wordList');
+        const accentRadios = document.getElementsByName('accent');
+        const player     = document.getElementById('player');
+        const nowPlaying = document.getElementById('nowPlaying');
+
+        let words = [];
+        let queue = [];
+        let currentIdx = -1;
+        let prevActiveRow = null;
+
+        const getAccent = () => Array.from(accentRadios).find(r => r.checked).value;
+        const buildAudioUrl = (word) => `http://dict.youdao.com/dictvoice?type=${getAccent()}&audio=${encodeURIComponent(word)}`;
+
+        function parseLine(line) {
+            const m = line.match(/^(?:\s*\d+\.\s*)?([A-Za-z\-'’]+)(?:\s*\[([^\]]+)\])?/);
+            if (!m) return null;
+            const word = m[1].toLowerCase();
+            const phonetic = m[2] ? `[${m[2]}]` : '';
+            return { word, phonetic };
+        }
+
+        function renderWordList() {
+            wordList.innerHTML = '';
+            words.forEach(({ word, phonetic }, idx) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between py-1 border-b last:border-0';
+                row.id = `row-${idx}`;
+                row.dataset.idx = idx;
+
+                const textWrap = document.createElement('div');
+                const phoneticHtml = phonetic ? `<span class="ml-2 text-gray-500 phonetic">${phonetic}</span>` : '';
+                textWrap.innerHTML = `<span class="font-semibold">${word}</span> ${phoneticHtml}`;
+                row.appendChild(textWrap);
+
+                const btn = document.createElement('button');
+                btn.className = 'p-1 text-blue-600 hover:text-blue-800';
+                btn.innerHTML = '<i data-lucide="volume-2" class="w-5 h-5"></i>';
+                row.appendChild(btn);
+
+                wordList.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function activateRow(idx) {
+            if (prevActiveRow) prevActiveRow.classList.remove('active-row');
+            const row = document.getElementById(`row-${idx}`);
+            if (row) {
+                row.classList.add('active-row');
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                prevActiveRow = row;
+            }
+        }
+
+        function playWordAt(idx) {
+            if (idx >= queue.length) {
+                playAllBtn.disabled = false;
+                stopBtn.disabled = true;
+                return;
+            }
+            currentIdx = idx;
+            nowPlaying.textContent = '';
+            nowPlaying.classList.add('hidden');
+            player.src = buildAudioUrl(queue[idx]);
+            player.play().catch(console.error);
+            activateRow(words.findIndex(w => w.word === queue[idx]));
+        }
+
+        player.addEventListener('ended', () => {
+            playWordAt(currentIdx + 1);
+        });
+
+        parseBtn.addEventListener('click', () => {
+            const lines = txtInput.value.split(/\r?\n/);
+            words = lines.map(parseLine).filter(Boolean);
+            if (words.length === 0) return alert('未解析到任何单词！');
+            renderWordList();
+            playAllBtn.disabled = false;
+            stopBtn.disabled = false;
+        });
+
+        wordList.addEventListener('click', (e) => {
+            const row = e.target.closest('[id^="row-"]');
+            if (!row) return;
+            const idx = Number(row.dataset.idx);
+            queue = [words[idx].word];
+            playWordAt(0);
+        });
+
+        playAllBtn.addEventListener('click', () => {
+            queue = words.map(w => w.word);
+            playWordAt(0);
+            playAllBtn.disabled = true;
+            stopBtn.disabled = false;
+        });
+
+        stopBtn.addEventListener('click', () => {
+            queue = [];
+            player.pause();
+            nowPlaying.textContent = '';
+            nowPlaying.classList.add('hidden');
+            playAllBtn.disabled = false;
+            stopBtn.disabled = true;
+            if (prevActiveRow) prevActiveRow.classList.remove('active-row');
+        });
+    })();
+</script>
+</body>
+</html>
