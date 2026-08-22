@@ -7,6 +7,7 @@ interface Props {
   subtitle?: string | string[]
   postTitle?: boolean
   height?: 'index' | 'post'
+  banners?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -14,6 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
   subtitle: () => site.subtitle as string | string[],
   postTitle: false,
   height: 'index',
+  banners: () => site.banners,
 })
 
 const subList = Array.isArray(props.subtitle) ? props.subtitle : [props.subtitle || site.description]
@@ -38,6 +40,22 @@ function scrollDown(e: Event) {
 
 <template>
   <header :class="['bg-cover', height === 'post' ? 'post-cover' : 'index-cover']">
+    <div v-if="!postTitle && banners?.length" class="bg-stack" aria-hidden="true">
+      <div
+        v-for="(src, i) in banners"
+        :key="i"
+        class="bg-slide"
+        :style="{
+          backgroundImage: `url(${src})`,
+          animationDelay: `${i * 6}s`,
+        }"
+      />
+      <div class="bg-mask" />
+    </div>
+    <div v-else-if="height === 'post'" class="bg-static" aria-hidden="true">
+      <div class="bg-mask" />
+    </div>
+
     <div class="container">
       <div v-if="!postTitle" class="brand">
         <div class="title center-align">{{ title }}</div>
@@ -88,6 +106,50 @@ function scrollDown(e: Event) {
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+/* ====== 轮播背景层(7 张图 6s 循环交叉淡入) ====== */
+.bg-stack {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  animation: bgCrossfade 42s infinite;
+  transform: scale(1.05);
+  transition: transform 8s ease-out;
+}
+
+@keyframes bgCrossfade {
+  0%, 4% { opacity: 0; transform: scale(1); }
+  8%, 14% { opacity: 1; transform: scale(1.05); }
+  18%, 100% { opacity: 0; transform: scale(1.08); }
+}
+
+.bg-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(45, 45, 45, .4);
+  z-index: 1;
+}
+
+.bg-static {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--matery-gradient);
+}
+
+.bg-cover > .container {
+  position: relative;
+  z-index: 3;
 }
 
 @media (max-width: 768px) {

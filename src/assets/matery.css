@@ -365,6 +365,7 @@ mark { background-color: #fcf8e3; padding: .2em; }
 .article-row {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   margin: 0 -0.75rem;
 }
 
@@ -837,4 +838,5 @@ pre.shiki:hover .code-copy,
 .article-content a.lightgallery-item:hover .lazy-img {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
+
 

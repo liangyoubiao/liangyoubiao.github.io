@@ -5,6 +5,7 @@ export interface PostMeta {
   categories?: string | string[]
   cover?: string
   description?: string
+  top?: boolean
   slug: string
   year: string
   month: string
@@ -49,6 +50,10 @@ function buildUrl(slug: string, date: string): string {
   return `/${y}/${m}/${day}/${slug}/`
 }
 
+function isTrue(v: unknown): boolean {
+  return v === true || v === 'true' || v === '是' || v === 1
+}
+
 function parsePost(path: string, mod: PostModule): Post {
   const data = mod.data
   const slug = slugFromPath(path)
@@ -63,6 +68,7 @@ function parsePost(path: string, mod: PostModule): Post {
     categories: data.categories as string | string[] | undefined,
     cover: data.cover as string | undefined,
     description: data.description as string | undefined,
+    top: isTrue(data.top),
     slug,
     year: new Date(date).getFullYear().toString(),
     month: pad(new Date(date).getMonth() + 1),
@@ -90,6 +96,10 @@ export function getAllTags(posts: Post[] = getAllPosts()): string[] {
 
 export function getPostsByTag(tag: string): Post[] {
   return getAllPosts().filter((p) => p.tags?.includes(tag))
+}
+
+export function getRecommendedPosts(): Post[] {
+  return getAllPosts().filter((p) => p.top)
 }
 
 export function getPostsByYearMonth(): Record<string, Record<string, Post[]>> {
