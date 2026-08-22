@@ -12,6 +12,7 @@
   "dependencies": {
     "@shikijs/markdown-it": "^4.4.3",
     "@vueuse/core": "^14.4.0",
+    "echarts": "^6.1.0",
     "feed": "^6.0.0",
     "flexsearch": "^0.8.212",
     "gray-matter": "^4.0.3",

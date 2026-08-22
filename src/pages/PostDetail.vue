@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Banner from '@/components/Banner.vue'
+import TocSidebar from '@/components/TocSidebar.vue'
 import { getAllPosts } from '@/utils/posts'
 import { renderMarkdown } from '@/utils/markdown'
 import lightGallery from 'lightgallery'
@@ -32,7 +33,6 @@ const wordCount = computed(() => {
 const contentRef = ref<HTMLElement | null>(null)
 let lgInstance: ReturnType<typeof lightGallery> | null = null
 
-// 复制按钮点击处理(事件代理)
 function onCopyClick(e: Event) {
   const target = e.target as HTMLElement
   const btn = target.closest('.code-copy') as HTMLButtonElement | null
@@ -64,7 +64,6 @@ async function copyToClipboard(text: string): Promise<boolean> {
       // fall through
     }
   }
-  // Fallback
   try {
     const ta = document.createElement('textarea')
     ta.value = text
@@ -107,47 +106,51 @@ onUnmounted(() => {
   <article v-if="post">
     <Banner :title="post.title" post-title height="post" />
 
-    <div id="artDetail" class="post-container">
-      <div class="card">
-        <div class="card-content article-info">
-          <div class="row tag-cate">
-            <div class="col s7 article-tag">
-              <RouterLink
-                v-for="tag in post.tags || []"
-                :key="tag"
-                :to="`/tags/${encodeURIComponent(tag)}/`"
-                class="chip"
-              >#{{ tag }}</RouterLink>
-              <span v-if="!post.tags?.length" class="chip">未分类</span>
+    <div class="post-layout">
+      <div class="post-spacer" aria-hidden="true" />
+      <div id="artDetail" class="post-container">
+        <div class="card">
+          <div class="card-content article-info">
+            <div class="row tag-cate">
+              <div class="col s7 article-tag">
+                <RouterLink
+                  v-for="tag in post.tags || []"
+                  :key="tag"
+                  :to="`/tags/${encodeURIComponent(tag)}/`"
+                  class="chip"
+                >#{{ tag }}</RouterLink>
+                <span v-if="!post.tags?.length" class="chip">未分类</span>
+              </div>
+              <div v-if="post.categories" class="col s5 right-align post-cate">
+                <i>📑</i>
+                <a href="#">{{ Array.isArray(post.categories) ? post.categories.join(', ') : post.categories }}</a>
+              </div>
             </div>
-            <div v-if="post.categories" class="col s5 right-align post-cate">
-              <i>📑</i>
-              <a href="#">{{ Array.isArray(post.categories) ? post.categories.join(', ') : post.categories }}</a>
+
+            <div class="post-info">
+              <span class="info-item">
+                <i>📅</i>
+                <span>发布于 {{ dateText }}</span>
+              </span>
+              <span class="info-item">
+                <i>📝</i>
+                <span>{{ wordCount }} 字</span>
+              </span>
+              <span class="info-item">
+                <i>⏱️</i>
+                <span>约 {{ Math.max(1, Math.ceil(wordCount / 400)) }} 分钟</span>
+              </span>
             </div>
           </div>
 
-          <div class="post-info">
-            <span class="info-item">
-              <i>📅</i>
-              <span>发布于 {{ dateText }}</span>
-            </span>
-            <span class="info-item">
-              <i>📝</i>
-              <span>{{ wordCount }} 字</span>
-            </span>
-            <span class="info-item">
-              <i>⏱️</i>
-              <span>约 {{ Math.max(1, Math.ceil(wordCount / 400)) }} 分钟</span>
-            </span>
+          <div ref="contentRef" class="card-content article-content" v-html="html"></div>
+
+          <div class="card-content article-footer">
+            <RouterLink to="/" class="back-home">← 返回首页</RouterLink>
           </div>
-        </div>
-
-        <div ref="contentRef" class="card-content article-content" v-html="html"></div>
-
-        <div class="card-content article-footer">
-          <RouterLink to="/" class="back-home">← 返回首页</RouterLink>
         </div>
       </div>
+      <TocSidebar :html="html" />
     </div>
   </article>
 
@@ -158,6 +161,30 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.post-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1250px) 1fr;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  align-items: start;
+}
+
+.post-spacer { display: block; }
+
+#artDetail {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.post-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
 .article-footer {
   padding: 1.5rem 2.5rem 2rem;
   border-top: 1px solid #f0f0f0;
@@ -178,6 +205,14 @@ onUnmounted(() => {
 .not-found a {
   color: var(--matery-primary);
   text-decoration: none;
+}
+
+/* TOC 侧栏定位:通过 grid 自适应,屏幕小(<1200px)自动隐藏 */
+@media (max-width: 1200px) {
+  .post-layout {
+    grid-template-columns: 1fr;
+  }
+  .post-spacer { display: none; }
 }
 </style>
 

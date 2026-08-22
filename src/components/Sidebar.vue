@@ -2,6 +2,7 @@
 import { getAllPosts } from '@/utils/posts'
 import PostCalendar from './PostCalendar.vue'
 import TagCloud from './TagCloud.vue'
+import CategoryRadar from './CategoryRadar.vue'
 
 const posts = getAllPosts()
 </script>
@@ -9,6 +10,7 @@ const posts = getAllPosts()
 <template>
   <aside class="sidebar">
     <TagCloud />
+    <CategoryRadar />
     <PostCalendar :posts="posts" />
   </aside>
 </template>
