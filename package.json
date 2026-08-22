@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "sync:images": "node scripts/sync-yuque.mjs",
+    "prebuild": "node scripts/sync-yuque.mjs",
     "build": "node scripts/build-search.mjs && vite-ssg build && node scripts/build-rss.mjs && node scripts/fix-lang.mjs",
     "preview": "vite preview",
     "type-check": "vue-tsc --build"
@@ -31,7 +33,7 @@
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
     "npm-run-all2": "^9.0.2",
-    "sharp": "^0.35.3",
+    "sharp": "^0.34.4",
     "typescript": "~6.0.0",
     "vite": "^8.1.5",
     "vue-tsc": "^3.3.7"
@@ -40,3 +42,4 @@
     "node": "^22.18.0 || >=24.12.0"
   }
 }
+
