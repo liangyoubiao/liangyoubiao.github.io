@@ -89,7 +89,10 @@ onUnmounted(() => {
     <Banner :title="post.title" post-title height="post" />
 
     <div class="post-layout">
-      <div class="post-spacer" aria-hidden="true" />
+      <aside class="post-toc-col">
+        <TocSidebar :html="html" />
+      </aside>
+
       <div id="artDetail" class="post-container">
         <div class="card">
           <div class="card-content article-info">
@@ -136,7 +139,6 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <TocSidebar :html="html" />
     </div>
 
     <Lightbox />
@@ -149,17 +151,31 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* 文章布局:
+   - ≥1100px: 3 列 [TOC 250px | 文章 min(0, 860px) | 右侧留白 1fr]
+   - 1100-768px: TOC 隐藏,文章居中
+   - <768px:  文章全宽
+*/
 .post-layout {
   display: grid;
-  grid-template-columns: 1fr minmax(0, 1250px) 1fr;
-  gap: 1.5rem;
-  max-width: 1400px;
+  grid-template-columns: 250px minmax(0, 860px) 1fr;
+  gap: 1.75rem;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 1.5rem;
   align-items: start;
 }
 
-.post-spacer { display: block; }
+.post-toc-col {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+}
+
+.post-toc-col :deep(.toc-sidebar) {
+  width: 100%;
+  max-height: calc(100vh - 100px);
+}
 
 #artDetail {
   min-width: 0;
@@ -195,11 +211,22 @@ onUnmounted(() => {
   text-decoration: none;
 }
 
-@media (max-width: 1200px) {
+/* 中等屏幕:隐藏 TOC,文章居中 */
+@media (max-width: 1100px) {
   .post-layout {
     grid-template-columns: 1fr;
+    max-width: 860px;
   }
-  .post-spacer { display: none; }
+  .post-toc-col {
+    display: none;
+  }
+}
+
+/* 小屏:更紧凑 */
+@media (max-width: 640px) {
+  .post-layout {
+    padding: 0 1rem;
+  }
 }
 </style>
 

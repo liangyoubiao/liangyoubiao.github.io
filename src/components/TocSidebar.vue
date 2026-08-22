@@ -38,7 +38,6 @@ function setupObserver() {
 
   observer = new IntersectionObserver(
     (entries) => {
-      // 找到当前视口最靠上的可见 heading
       const visible = entries
         .filter((e) => e.isIntersecting)
         .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
@@ -82,7 +81,7 @@ function go(id: string, e: Event) {
         :key="h.id"
         :class="['toc-item', `toc-h${h.level}`, h.id === activeId && 'is-active']"
       >
-        <a :href="`#${h.id}`" @click="go(h.id, $event)">{{ h.text }}</a>
+        <a :href="`#${h.id}`" :title="h.text" @click="go(h.id, $event)">{{ h.text }}</a>
       </li>
     </ul>
   </aside>
@@ -93,12 +92,11 @@ function go(id: string, e: Event) {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(50, 50, 93, .08), 0 4px 10px rgba(0, 0, 0, .05);
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 1rem 1rem 1.25rem;
   font-size: 0.85rem;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
-  position: sticky;
-  top: 80px;
+  /* sticky 由父 .post-toc-col 提供,自身无需再 sticky */
 }
 
 .toc-title {
@@ -107,6 +105,7 @@ function go(id: string, e: Event) {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #f0f0f0;
   color: var(--matery-text);
+  font-weight: 600;
 }
 
 .toc-list {
@@ -124,13 +123,16 @@ function go(id: string, e: Event) {
 
 .toc-item a {
   display: block;
-  padding: 0.35rem 0.75rem;
-  color: #777;
+  padding: 0.35rem 0.6rem;
+  color: #666;
   text-decoration: none;
-  line-height: 1.4;
-  transition: all 0.2s;
+  line-height: 1.5;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, font-weight 0.2s;
   border-left: 2px solid transparent;
   margin-left: -2px;
+  /* 长标题/CJK 不在单词内断行,而是按词换行 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .toc-item a:hover {
@@ -138,11 +140,12 @@ function go(id: string, e: Event) {
 }
 
 .toc-h3 a {
-  padding-left: 1.5rem;
+  padding-left: 1.25rem;
   font-size: 0.78rem;
   color: #999;
 }
 
+.toc-item.is-active > a,
 .toc-item.is-active a {
   color: var(--matery-primary);
   font-weight: 600;
@@ -150,7 +153,7 @@ function go(id: string, e: Event) {
   background: linear-gradient(90deg, rgba(15, 157, 88, 0.06), transparent);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
   .toc-sidebar { display: none; }
 }
 </style>
