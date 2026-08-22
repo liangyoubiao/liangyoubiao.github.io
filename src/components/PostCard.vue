@@ -28,7 +28,7 @@ function hash(s: string): number {
 
 const cover = computed(() => {
   if (props.post.cover) return props.post.cover
-  return `/medias/featureimages/${hash(props.post.slug) % FEATURE_COUNT}.jpg`
+  return `/medias/featureimages/${hash(props.post.slug) % FEATURE_COUNT}.webp`
 })
 
 const gradient = computed(() => GRADIENTS[hash(props.post.slug) % GRADIENTS.length])
@@ -219,4 +219,5 @@ const bgStyle = computed(() => ({
   gap: 0.25rem;
 }
 </style>
+
 

@@ -28,7 +28,7 @@ function hash(s: string): number {
 }
 
 const items = computed(() => props.posts.map((p, i) => {
-  const cover = p.cover || `/medias/featureimages/${hash(p.slug) % FEATURE_COUNT}.jpg`
+  const cover = p.cover || `/medias/featureimages/${hash(p.slug) % FEATURE_COUNT}.webp`
   return {
     ...p,
     cover,
@@ -237,6 +237,7 @@ const dateText = (date: string) => {
   .recommend-grid { grid-template-columns: 1fr; }
 }
 </style>
+
 
 
 

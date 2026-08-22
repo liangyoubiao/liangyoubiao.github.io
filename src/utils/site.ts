@@ -7,7 +7,7 @@ export const site = {
   url: 'https://liangyoubiao.github.io',
   githubUrl: 'https://github.com/liangyoubiao',
   language: 'zh-CN',
-  avatar: '/medias/avatar.jpg',
+  avatar: '/medias/avatar.webp',
   subtitle: [
     'LiangYouBiao 的博客',
     '记录学习与生活的点滴',
@@ -20,13 +20,13 @@ export const site = {
     text: '愿你走出半生,归来仍是少年。坚持热爱,持续输出,做一个对世界还有点用的人。',
   },
   banners: [
-    '/medias/banner/0.jpg',
-    '/medias/banner/1.jpg',
-    '/medias/banner/2.jpg',
-    '/medias/banner/3.jpg',
-    '/medias/banner/4.jpg',
-    '/medias/banner/5.jpg',
-    '/medias/banner/6.jpg',
+    '/medias/banner/0.webp',
+    '/medias/banner/1.webp',
+    '/medias/banner/2.webp',
+    '/medias/banner/3.webp',
+    '/medias/banner/4.webp',
+    '/medias/banner/5.webp',
+    '/medias/banner/6.webp',
   ],
   bannerButtons: [
     { text: '开始阅读', icon: '↓', href: '#articles', primary: true },
@@ -47,4 +47,5 @@ export const site = {
     { name: 'GitHub', url: 'https://github.com/liangyoubiao', icon: 'GitHub' },
   ],
 }
+
 

@@ -814,7 +814,7 @@ pre.shiki:hover .code-copy,
   }
 }
 
-/* ===== 图片懒加载 + lightGallery 链接 ===== */
+/* ===== 图片懒加载 + 自写 Lightbox 链接 ===== */
 .article-content .lazy-img {
   display: block;
   max-width: 100%;
@@ -830,13 +830,15 @@ pre.shiki:hover .code-copy,
   min-height: 80px;
 }
 
-.article-content a.lightgallery-item {
+.article-content a.lightbox-item {
   display: block;
   text-decoration: none;
 }
 
-.article-content a.lightgallery-item:hover .lazy-img {
+.article-content a.lightbox-item:hover .lazy-img {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
+
+
 
 

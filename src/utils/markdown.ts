@@ -128,14 +128,14 @@ await md.use(await Shiki({
 }))
 
 // 重写图片规则:加 loading="lazy" + lightGallery 包装
-// lightGallery 通过 <a data-lg-size="..." class="lightgallery-item"> 抓取大图
+// lightGallery 通过 <a data-lb-size="..." class="lightbox-item"> 抓取大图
 md.renderer.rules.image = (tokens, idx) => {
   const token = tokens[idx]
   const src = token.attrGet('src') || ''
   const alt = (token.content || '').replace(/"/g, '&quot;')
   const title = (token.attrGet('title') || alt).replace(/"/g, '&quot;')
   if (!src) return token.content
-  return `<a href="${src}" class="lightgallery-item" data-lg-size="1280-720" data-sub-html="${title}">` +
+  return `<a href="${src}" class="lightbox-item" data-lb-size="1280-720" data-sub-html="${title}">` +
          `<img src="${src}" alt="${alt}" loading="lazy" class="lazy-img" decoding="async" />` +
          `</a>`
 }
@@ -143,4 +143,5 @@ md.renderer.rules.image = (tokens, idx) => {
 export function renderMarkdown(content: string): string {
   return md.render(content)
 }
+
 

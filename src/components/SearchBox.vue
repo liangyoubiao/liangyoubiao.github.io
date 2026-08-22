@@ -8,7 +8,6 @@ const router = useRouter()
 
 const open = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
-const boxRef = ref<HTMLElement | null>(null)
 const activeIdx = ref(0)
 
 watch(results, () => { activeIdx.value = 0 })
@@ -30,7 +29,6 @@ function go(url: string) {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  // Ctrl/⌘ + K 打开
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
     if (open.value) hide()
@@ -74,7 +72,7 @@ onMounted(() => {
 
   <Teleport to="body">
     <div v-if="open" class="search-backdrop" @click="onBackdropClick">
-      <div ref="boxRef" class="search-panel" role="dialog" aria-modal="true">
+      <div class="search-panel" role="dialog" aria-modal="true">
         <div class="search-input-wrap">
           <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="7" />
@@ -94,29 +92,42 @@ onMounted(() => {
 
         <div class="search-results">
           <p v-if="!ready" class="search-status">加载索引中...</p>
-          <p v-else-if="!query.trim()" class="search-status">
-            输入关键词开始搜索
-          </p>
+          <p v-else-if="!query.trim()" class="search-status">输入关键词开始搜索</p>
           <p v-else-if="!results.length" class="search-status">没有找到匹配 “{{ query }}” 的文章</p>
-          <ul v-else>
-            <li
-              v-for="(r, i) in results"
-              :key="r.url"
-              :class="{ 'is-active': i === activeIdx }"
-              @mouseenter="activeIdx = i"
-              @click="go(r.url)"
-            >
-              <div class="result-icon">📄</div>
-              <div class="result-body">
-                <h4>{{ r.title }}</h4>
-                <p>{{ r.summary }}</p>
-                <div class="result-meta">
-                  <time>{{ r.date }}</time>
-                  <span v-for="t in r.tags.slice(0, 3)" :key="t" class="result-tag">#{{ t }}</span>
-                </div>
+
+          <!-- 骨架屏:索引加载时显示 -->
+          <ul v-else-if="!ready" class="search-skeleton">
+            <li v-for="i in 3" :key="i" class="skeleton-item">
+              <div class="sk-icon sk" />
+              <div class="sk-body">
+                <div class="sk-line sk sk-50" />
+                <div class="sk-line sk sk-90" />
+                <div class="sk-line sk sk-30" />
               </div>
             </li>
           </ul>
+
+          <Transition name="search-result" mode="out-in">
+            <ul v-if="results.length" :key="query">
+              <li
+                v-for="(r, i) in results"
+                :key="r.url"
+                :class="{ 'is-active': i === activeIdx }"
+                @mouseenter="activeIdx = i"
+                @click="go(r.url)"
+              >
+                <div class="result-icon">📄</div>
+                <div class="result-body">
+                  <h4>{{ r.title }}</h4>
+                  <p>{{ r.summary }}</p>
+                  <div class="result-meta">
+                    <time>{{ r.date }}</time>
+                    <span v-for="t in r.tags.slice(0, 3)" :key="t" class="result-tag">#{{ t }}</span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </Transition>
         </div>
 
         <div class="search-footer">
@@ -281,6 +292,68 @@ onMounted(() => {
 
 .result-tag {
   color: var(--matery-primary, #0f9d58);
+}
+
+/* 搜索结果切换动画 */
+.search-result-enter-active,
+.search-result-leave-active {
+  transition: opacity 0.15s, transform 0.15s;
+}
+.search-result-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.search-result-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* 骨架屏 */
+.search-skeleton {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+.skeleton-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.sk {
+  background: linear-gradient(90deg, #f0f0f0 0%, #e8e8e8 50%, #f0f0f0 100%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: sk-shimmer 1.2s ease-in-out infinite;
+}
+
+.sk-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.sk-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sk-line { height: 12px; }
+.sk-50 { width: 50%; }
+.sk-30 { width: 30%; }
+.sk-90 { width: 90%; }
+
+@keyframes sk-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none; background: #f0f0f0; }
 }
 
 .search-footer {

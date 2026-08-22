@@ -2,13 +2,10 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Banner from '@/components/Banner.vue'
+import Lightbox from '@/components/Lightbox.vue'
 import TocSidebar from '@/components/TocSidebar.vue'
 import { getAllPosts } from '@/utils/posts'
 import { renderMarkdown } from '@/utils/markdown'
-import lightGallery from 'lightgallery'
-import lgZoom from 'lightgallery/plugins/zoom'
-import lgFullscreen from 'lightgallery/plugins/fullscreen'
-import lgThumbnail from 'lightgallery/plugins/thumbnail'
 
 const route = useRoute()
 const posts = getAllPosts()
@@ -31,7 +28,6 @@ const wordCount = computed(() => {
 })
 
 const contentRef = ref<HTMLElement | null>(null)
-let lgInstance: ReturnType<typeof lightGallery> | null = null
 
 function onCopyClick(e: Event) {
   const target = e.target as HTMLElement
@@ -81,24 +77,10 @@ async function copyToClipboard(text: string): Promise<boolean> {
 
 onMounted(() => {
   document.addEventListener('click', onCopyClick)
-
-  if (contentRef.value) {
-    lgInstance = lightGallery(contentRef.value, {
-      selector: '.lightgallery-item',
-      plugins: [lgZoom, lgFullscreen, lgThumbnail],
-      speed: 400,
-      download: false,
-      counter: true,
-    })
-  }
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onCopyClick)
-  if (lgInstance) {
-    try { lgInstance.destroy() } catch {}
-    lgInstance = null
-  }
 })
 </script>
 
@@ -136,7 +118,14 @@ onUnmounted(() => {
                 <i>📝</i>
                 <span>{{ wordCount }} 字</span>
               </span>
-              <span class="info-item"><i>⏱️</i><span>约 {{ Math.max(1, Math.ceil(wordCount / 400)) }} 分钟</span></span><span class="info-item" title="本文阅读量"><i>👀</i><span><span id="busuanzi_value_page_pv">—</span> 次阅读</span></span>
+              <span class="info-item">
+                <i>⏱️</i>
+                <span>约 {{ Math.max(1, Math.ceil(wordCount / 400)) }} 分钟</span>
+              </span>
+              <span class="info-item" title="本文阅读量">
+                <i>👀</i>
+                <span><span id="busuanzi_value_page_pv">—</span> 次阅读</span>
+              </span>
             </div>
           </div>
 
@@ -149,6 +138,8 @@ onUnmounted(() => {
       </div>
       <TocSidebar :html="html" />
     </div>
+
+    <Lightbox />
   </article>
 
   <section v-else class="not-found">
@@ -204,7 +195,6 @@ onUnmounted(() => {
   text-decoration: none;
 }
 
-/* TOC 侧栏定位:通过 grid 自适应,屏幕小(<1200px)自动隐藏 */
 @media (max-width: 1200px) {
   .post-layout {
     grid-template-columns: 1fr;
@@ -212,7 +202,4 @@ onUnmounted(() => {
   .post-spacer { display: none; }
 }
 </style>
-
-
-
 
