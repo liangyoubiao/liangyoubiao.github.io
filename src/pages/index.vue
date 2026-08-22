@@ -11,33 +11,47 @@ const latestPosts = posts.filter((p) => !p.top)
 </script>
 
 <template>
-  <Banner />
+  <div class="home-page">
+    <Banner />
 
-  <Dream />
+    <Dream />
 
-  <Recommend v-if="recommended.length" :posts="recommended" />
+    <Recommend v-if="recommended.length" :posts="recommended" />
 
-  <article id="articles" class="container articles">
-    <header class="latest-header">
-      <h2 class="latest-title">
-        <span class="title-icon">📚</span>
-        <span>最新文章</span>
-      </h2>
-      <p class="latest-sub">共 {{ latestPosts.length }} 篇 · 按发布时间倒序</p>
-    </header>
+    <article id="articles" class="container articles">
+      <header class="latest-header">
+        <h2 class="latest-title">
+          <span class="title-icon">📚</span>
+          <span>最新文章</span>
+        </h2>
+        <p class="latest-sub">共 {{ latestPosts.length }} 篇 · 按发布时间倒序</p>
+      </header>
 
-    <div class="row article-row">
-      <div v-for="post in latestPosts" :key="post.slug" class="article-col">
-        <PostCard :post="post" />
+      <div class="row article-row">
+        <div v-for="post in latestPosts" :key="post.slug" class="article-col">
+          <PostCard :post="post" />
+        </div>
+        <div v-if="!latestPosts.length" class="empty">
+          <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
+        </div>
       </div>
-      <div v-if="!latestPosts.length" class="empty">
-        <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
-      </div>
-    </div>
-  </article>
+    </article>
+  </div>
 </template>
 
 <style scoped>
+/* 首页文字不可选中(避免鼠标误选)。
+   可点击元素保持 cursor: pointer,代码块允许 user-select: text。 */
+.home-page {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.home-page :deep(.empty code) {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 .latest-header {
   text-align: center;
   margin-bottom: 2rem;

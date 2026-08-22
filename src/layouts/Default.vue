@@ -37,8 +37,8 @@ const year = new Date().getFullYear()
     </main>
 
     <footer class="site-footer">
-      <p>© {{ year }} {{ site.author }} · Powered by Vue 3 + Vite + vite-ssg</p>
-      <p class="footer-meta">Matery 视觉风格复刻 · 从 Hexo 迁移</p>
+      <p>© {{ year }} {{ site.author }} · 记录生活 · 分享思考</p>
+      <p class="footer-meta"></p>
       <p class="footer-stats">
         <span class="stat-item" title="本站总访问量">
           <i class="far fa-eye"></i>
@@ -154,4 +154,6 @@ const year = new Date().getFullYear()
   }
 }
 </style>
+
+
 

@@ -11,7 +11,7 @@ export const site = {
   subtitle: [
     'LiangYouBiao 的博客',
     '记录学习与生活的点滴',
-    '从 Hexo 迁移到 Vue 3',
+    '保持好奇,持续输出',
     '代码 · 阅读 · 骑行 · 滑雪',
     'Stay hungry, stay foolish',
   ],
@@ -47,5 +47,4 @@ export const site = {
     { name: 'GitHub', url: 'https://github.com/liangyoubiao', icon: 'GitHub' },
   ],
 }
-
 

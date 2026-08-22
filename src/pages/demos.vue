@@ -66,7 +66,7 @@ const categories = [...new Set(demos.map((d) => d.category))]
     <header class="page-banner">
       <div class="matery-container">
         <h1>🛠️ 小工具</h1>
-        <p>共 {{ demos.length + otherPages.length }} 个小工具 · 复用自 Hexo 老站</p>
+        <p>共 {{ demos.length + otherPages.length }} 个小工具 · 精选小工具</p>
       </div>
     </header>
 
@@ -204,4 +204,5 @@ const categories = [...new Set(demos.map((d) => d.category))]
   font-weight: 500;
 }
 </style>
+
 
