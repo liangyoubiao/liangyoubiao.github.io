@@ -5,19 +5,40 @@ import vue from '@vitejs/plugin-vue'
 import matter from 'gray-matter'
 
 /**
- * Vite plugin: 把 .md 文件 import 转换成预解析的 { data, content } JS 模块。
- * 这样 gray-matter 只在 Node 端运行(构建时),浏览器端不会触发 Buffer 缺失错误。
+ * 把 Date 对象(由 YAML !!timestamp 解析为 UTC)还原成原始字符串,
+ * 避免本地时区 8h 偏移导致 URL 偏差 1 天。
  */
+function fixDates(obj: any): any {
+  if (obj === null || obj === undefined) return obj
+  if (obj instanceof Date) {
+    const y = obj.getUTCFullYear()
+    const m = String(obj.getUTCMonth() + 1).padStart(2, '0')
+    const d = String(obj.getUTCDate()).padStart(2, '0')
+    const hh = String(obj.getUTCHours()).padStart(2, '0')
+    const mm = String(obj.getUTCMinutes()).padStart(2, '0')
+    const ss = String(obj.getUTCSeconds()).padStart(2, '0')
+    return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+  }
+  if (Array.isArray(obj)) return obj.map(fixDates)
+  if (typeof obj === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(obj)) out[k] = fixDates(v)
+    return out
+  }
+  return obj
+}
+
 function mdAsData() {
   return {
     name: 'md-as-data',
     enforce: 'pre',
-    transform(_code, id) {
+    transform(_code: string, id: string) {
       if (!id.endsWith('.md') || id.includes('node_modules')) return null
       const raw = readFileSync(id, 'utf-8')
       const parsed = matter(raw)
+      const fixed = fixDates(parsed.data)
       const code = `export default ${JSON.stringify({
-        data: parsed.data,
+        data: fixed,
         content: parsed.content,
       })}`
       return { code, map: null }
@@ -25,16 +46,12 @@ function mdAsData() {
   }
 }
 
-/**
- * 在构建时把 index.html 的 <html lang="..."> 强制改为指定值,
- * 备用方案:实际由 post-build 脚本 scripts/fix-lang.mjs 完成。
- */
-function setHtmlLang(lang) {
+function setHtmlLang(lang: string) {
   return {
     name: `set-html-lang-${lang}`,
     transformIndexHtml: {
-      order: 'pre',
-      handler(html) {
+      order: 'pre' as const,
+      handler(html: string) {
         return html.replace(
           /<html(\s[^>]*)?>/i,
           (match, attrs) => {
@@ -50,7 +67,6 @@ function setHtmlLang(lang) {
   }
 }
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), mdAsData(), setHtmlLang('zh-CN')],
   resolve: {
