@@ -3,7 +3,6 @@ import Banner from '@/components/Banner.vue'
 import PostCard from '@/components/PostCard.vue'
 import Dream from '@/components/Dream.vue'
 import Recommend from '@/components/Recommend.vue'
-import Sidebar from '@/components/Sidebar.vue'
 import { getAllPosts, getRecommendedPosts } from '@/utils/posts'
 
 const posts = getAllPosts()
@@ -18,49 +17,31 @@ const latestPosts = posts.filter((p) => !p.top)
 
   <Recommend v-if="recommended.length" :posts="recommended" />
 
-  <div class="home-grid">
-    <article id="articles" class="home-main">
-      <header class="latest-header">
-        <h2 class="latest-title">
-          <span class="title-icon">📚</span>
-          <span>最新文章</span>
-        </h2>
-        <p class="latest-sub">共 {{ latestPosts.length }} 篇 · 按发布时间倒序</p>
-      </header>
+  <article id="articles" class="container articles">
+    <header class="latest-header">
+      <h2 class="latest-title">
+        <span class="title-icon">📚</span>
+        <span>最新文章</span>
+      </h2>
+      <p class="latest-sub">共 {{ latestPosts.length }} 篇 · 按发布时间倒序</p>
+    </header>
 
-      <div class="row article-row">
-        <div v-for="post in latestPosts" :key="post.slug" class="article-col">
-          <PostCard :post="post" />
-        </div>
-        <div v-if="!latestPosts.length" class="empty">
-          <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
-        </div>
+    <div class="row article-row">
+      <div v-for="post in latestPosts" :key="post.slug" class="article-col">
+        <PostCard :post="post" />
       </div>
-    </article>
-
-    <Sidebar />
-  </div>
+      <div v-if="!latestPosts.length" class="empty">
+        <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
+      </div>
+    </div>
+  </article>
 </template>
 
 <style scoped>
-.home-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 2rem;
-  max-width: var(--container-width, 1125px);
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  align-items: start;
-}
-
-.home-main {
-  min-width: 0;
-}
-
 .latest-header {
   text-align: center;
   margin-bottom: 2rem;
-  padding-top: 0.5rem;
+  padding-top: 1rem;
 }
 
 .latest-title {
@@ -93,13 +74,6 @@ const latestPosts = posts.filter((p) => !p.top)
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
   font-size: 0.9em;
-}
-
-@media (max-width: 992px) {
-  .home-grid {
-    grid-template-columns: 1fr;
-    padding: 1.5rem 1rem;
-  }
 }
 </style>
 
