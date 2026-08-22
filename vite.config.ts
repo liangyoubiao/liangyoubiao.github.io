@@ -30,24 +30,6 @@ function fixDates(obj) {
   return obj
 }
 
-function parseFrontMatter(raw) {
-  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/)
-  if (!m) return { data: {}, content: raw }
-  const data = {}
-  m[1].split(/\r?\n/).forEach((line) => {
-    const mm = line.match(/^(\w+):\s*(.*)$/)
-    if (!mm) return
-    let v = mm[2].trim()
-    if (v.startsWith('[')) {
-      try { v = JSON.parse(v.replace(/'([\w\s-]+)'/g, '"$1"')) } catch { v = v.slice(1, -1).split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')) }
-    } else {
-      v = v.replace(/^["']|["']$/g, '')
-    }
-    data[mm[1]] = v
-  })
-  return { data, content: m[2] }
-}
-
 function pad(n) { return n.toString().padStart(2, '0') }
 
 function buildUrl(slug, date) {
@@ -63,9 +45,9 @@ function buildRoutes() {
   for (const file of readdirSync(POSTS_DIR)) {
     if (!file.endsWith('.md')) continue
     const raw = readFileSync(join(POSTS_DIR, file), 'utf-8')
-    const { data } = parseFrontMatter(raw)
-    const slug = file.replace(/\.md$/, '')
+    const { data } = matter(raw)
     const fixed = fixDates(data)
+    const slug = file.replace(/\.md$/, '')
     const date = fixed.date ? new Date(fixed.date).toISOString() : new Date().toISOString()
     posts.push({
       title: fixed.title || slug,

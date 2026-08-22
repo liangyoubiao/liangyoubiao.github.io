@@ -4,16 +4,13 @@ import DefaultLayout from './layouts/Default.vue'
 
 <template>
   <DefaultLayout>
-    <RouterView v-slot="{ Component, route }">
-      <Transition name="page" mode="out-in">
-        <component :is="Component" :key="route.fullPath" />
-      </Transition>
-    </RouterView>
+    <RouterView />
   </DefaultLayout>
 </template>
 
 <style>
-/* 页面切换动画 */
+/* 页面切换动画(暂时禁用以便排查 hydration 问题) */
+/*
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -29,7 +26,6 @@ import DefaultLayout from './layouts/Default.vue'
   transform: translateY(-4px);
 }
 
-/* 尊重用户的 reduced-motion 偏好 */
 @media (prefers-reduced-motion: reduce) {
   .page-enter-active,
   .page-leave-active {
@@ -40,5 +36,6 @@ import DefaultLayout from './layouts/Default.vue'
     transform: none;
   }
 }
+*/
 </style>
 
