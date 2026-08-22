@@ -39,6 +39,17 @@ const year = new Date().getFullYear()
     <footer class="site-footer">
       <p>© {{ year }} {{ site.author }} · Powered by Vue 3 + Vite + vite-ssg</p>
       <p class="footer-meta">Matery 视觉风格复刻 · 从 Hexo 迁移</p>
+      <p class="footer-stats">
+        <span class="stat-item" title="本站总访问量">
+          <i class="far fa-eye"></i>
+          <span id="busuanzi_value_site_pv">—</span> 次访问
+        </span>
+        <span class="stat-sep">·</span>
+        <span class="stat-item" title="本站访客数">
+          <i class="fas fa-user"></i>
+          <span id="busuanzi_value_site_uv">—</span> 位访客
+        </span>
+      </p>
     </footer>
 
     <ProgressBar />
@@ -92,6 +103,39 @@ const year = new Date().getFullYear()
   margin: 0.25rem 0 0;
   font-size: 0.78rem;
   opacity: 0.7;
+}
+
+.footer-stats {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stat-item i {
+  color: var(--matery-primary);
+  font-size: 0.85rem;
+}
+
+.stat-item span {
+  font-weight: 600;
+  color: #666;
+  min-width: 1.5em;
+  text-align: left;
+}
+
+.stat-sep {
+  color: #ddd;
 }
 
 @media (max-width: 768px) {

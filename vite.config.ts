@@ -3,11 +3,8 @@ import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import matter from 'gray-matter'
+import { VitePWA } from 'vite-plugin-pwa'
 
-/**
- * 把 Date 对象(由 YAML !!timestamp 解析为 UTC)还原成原始字符串,
- * 避免本地时区 8h 偏移导致 URL 偏差 1 天。
- */
 function fixDates(obj: any): any {
   if (obj === null || obj === undefined) return obj
   if (obj instanceof Date) {
@@ -68,7 +65,43 @@ function setHtmlLang(lang: string) {
 }
 
 export default defineConfig({
-  plugins: [vue(), mdAsData(), setHtmlLang('zh-CN')],
+  plugins: [
+    vue(),
+    mdAsData(),
+    setHtmlLang('zh-CN'),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      includeAssets: ['/favicon.svg'],
+      manifest: {
+        name: 'LiangYouBiao 的博客',
+        short_name: 'LiangYouBiao 博客',
+        description: '从 Hexo 迁移到 Vue 3 的个人博客',
+        theme_color: '#0f9d58',
+        background_color: '#eaeaea',
+        display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
+        lang: 'zh-CN',
+        display_override: ['window-control-overlay', 'standalone', 'browser'],
+        icons: [
+          { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/maskable-icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webp,jpg,jpeg}'],
+        cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+        clientsClaim: true,
+      },
+      devOptions: {
+        enabled: false, // dev 模式关闭 PWA,只在生产生效
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -91,4 +124,5 @@ export default defineConfig({
     crittersOptions: false,
   },
 })
+
 

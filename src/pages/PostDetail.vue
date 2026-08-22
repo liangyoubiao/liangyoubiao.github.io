@@ -136,10 +136,7 @@ onUnmounted(() => {
                 <i>📝</i>
                 <span>{{ wordCount }} 字</span>
               </span>
-              <span class="info-item">
-                <i>⏱️</i>
-                <span>约 {{ Math.max(1, Math.ceil(wordCount / 400)) }} 分钟</span>
-              </span>
+              <span class="info-item"><i>⏱️</i><span>约 {{ Math.max(1, Math.ceil(wordCount / 400)) }} 分钟</span></span><span class="info-item" title="本文阅读量"><i>👀</i><span><span id="busuanzi_value_page_pv">—</span> 次阅读</span></span>
             </div>
           </div>
 
@@ -215,4 +212,7 @@ onUnmounted(() => {
   .post-spacer { display: none; }
 }
 </style>
+
+
+
 
