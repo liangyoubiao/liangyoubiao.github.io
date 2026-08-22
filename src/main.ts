@@ -4,6 +4,9 @@ import { staticRoutes } from './router'
 import { getAllPosts, getAllTags } from './utils/posts'
 import './assets/main.css'
 import './assets/matery.css'
+import 'lightgallery/css/lightgallery.css'
+import 'lightgallery/css/lg-zoom.css'
+import 'lightgallery/css/lg-thumbnail.css'
 
 // Build dynamic routes from Markdown content
 const posts = getAllPosts()

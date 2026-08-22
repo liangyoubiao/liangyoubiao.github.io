@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Banner from '@/components/Banner.vue'
 import { getAllPosts } from '@/utils/posts'
 import { renderMarkdown } from '@/utils/markdown'
+import lightGallery from 'lightgallery'
+import lgZoom from 'lightgallery/plugins/zoom'
+import lgFullscreen from 'lightgallery/plugins/fullscreen'
+import lgThumbnail from 'lightgallery/plugins/thumbnail'
 
 const route = useRoute()
 const posts = getAllPosts()
@@ -23,6 +27,79 @@ const dateText = computed(() => {
 const wordCount = computed(() => {
   if (!post.value) return 0
   return post.value.content.length
+})
+
+const contentRef = ref<HTMLElement | null>(null)
+let lgInstance: ReturnType<typeof lightGallery> | null = null
+
+// 复制按钮点击处理(事件代理)
+function onCopyClick(e: Event) {
+  const target = e.target as HTMLElement
+  const btn = target.closest('.code-copy') as HTMLButtonElement | null
+  if (!btn) return
+  const pre = btn.closest('pre')
+  if (!pre) return
+  const code = pre.querySelector('code')
+  if (!code) return
+  const text = code.textContent || ''
+  copyToClipboard(text).then((ok) => {
+    if (!ok) return
+    btn.classList.add('is-copied')
+    const textEl = btn.querySelector('.copy-text')
+    const original = textEl?.textContent
+    if (textEl) textEl.textContent = '已复制'
+    setTimeout(() => {
+      btn.classList.remove('is-copied')
+      if (textEl && original) textEl.textContent = original
+    }, 1500)
+  })
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      // fall through
+    }
+  }
+  // Fallback
+  try {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(ta)
+    return ok
+  } catch {
+    return false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', onCopyClick)
+
+  if (contentRef.value) {
+    lgInstance = lightGallery(contentRef.value, {
+      selector: '.lightgallery-item',
+      plugins: [lgZoom, lgFullscreen, lgThumbnail],
+      speed: 400,
+      download: false,
+      counter: true,
+    })
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', onCopyClick)
+  if (lgInstance) {
+    try { lgInstance.destroy() } catch {}
+    lgInstance = null
+  }
 })
 </script>
 
@@ -65,7 +142,7 @@ const wordCount = computed(() => {
           </div>
         </div>
 
-        <div class="card-content article-content" v-html="html"></div>
+        <div ref="contentRef" class="card-content article-content" v-html="html"></div>
 
         <div class="card-content article-footer">
           <RouterLink to="/" class="back-home">← 返回首页</RouterLink>
