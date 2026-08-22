@@ -1,5 +1,3 @@
-import matter from 'gray-matter'
-
 export interface PostMeta {
   title: string
   date: string
@@ -18,11 +16,17 @@ export interface Post extends PostMeta {
   content: string
 }
 
-// vite-ssg / Vite uses this glob to inline all .md content at build time.
-const modules = import.meta.glob<string>('../content/posts/*.md', {
-  query: '?raw',
-  import: 'default',
+interface PostModule {
+  data: Record<string, unknown>
+  content: string
+}
+
+// 由 vite.config.ts 中的 mdAsData 插件预解析:
+// gray-matter 只在 Node 端运行,浏览器端拿到的是纯数据对象。
+// import: 'default' 让 glob 直接吐默认导出,避免模块命名空间包装。
+const modules = import.meta.glob<PostModule>('../content/posts/*.md', {
   eager: true,
+  import: 'default',
 })
 
 function slugFromPath(path: string): string {
@@ -45,24 +49,26 @@ function buildUrl(slug: string, date: string): string {
   return `/${y}/${m}/${day}/${slug}/`
 }
 
-function parsePost(path: string, raw: string): Post {
-  const parsed = matter(raw)
-  const data = parsed.data as Partial<PostMeta>
+function parsePost(path: string, mod: PostModule): Post {
+  const data = mod.data
   const slug = slugFromPath(path)
-  const date = data.date ? new Date(data.date).toISOString() : new Date().toISOString()
+  const rawDate = data.date
+  const date = rawDate
+    ? new Date(typeof rawDate === 'string' ? rawDate : String(rawDate)).toISOString()
+    : new Date().toISOString()
   return {
-    title: data.title ?? slug,
+    title: (data.title as string) ?? slug,
     date,
-    tags: data.tags ?? [],
-    categories: data.categories,
-    cover: data.cover,
-    description: data.description,
+    tags: (data.tags as string[]) ?? [],
+    categories: data.categories as string | string[] | undefined,
+    cover: data.cover as string | undefined,
+    description: data.description as string | undefined,
     slug,
     year: new Date(date).getFullYear().toString(),
     month: pad(new Date(date).getMonth() + 1),
     day: pad(new Date(date).getDate()),
     url: buildUrl(slug, date),
-    content: parsed.content,
+    content: mod.content,
   }
 }
 
@@ -71,7 +77,7 @@ let cached: Post[] | null = null
 export function getAllPosts(): Post[] {
   if (cached) return cached
   cached = Object.entries(modules)
-    .map(([path, raw]) => parsePost(path, raw))
+    .map(([path, mod]) => parsePost(path, mod))
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
   return cached
 }
@@ -97,3 +103,4 @@ export function getPostsByYearMonth(): Record<string, Record<string, Post[]>> {
   }
   return grouped
 }
+

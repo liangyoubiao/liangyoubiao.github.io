@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite-ssg build",
-    "build:check": "run-p type-check \"vite-ssg build\"",
-    "preview": "vite-ssg serve",
+    "build": "vite-ssg build && node scripts/fix-lang.mjs",
+    "preview": "vite preview",
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
@@ -35,3 +34,4 @@
     "node": "^22.18.0 || >=24.12.0"
   }
 }
+
