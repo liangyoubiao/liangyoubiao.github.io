@@ -5,7 +5,6 @@ import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import matter from 'gray-matter'
-import { VitePWA } from 'vite-plugin-pwa'
 
 const ROOT = new URL('./', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')
 const POSTS_DIR = join(ROOT, 'src/content/posts')
@@ -165,36 +164,6 @@ export default defineConfig({
     vue(),
     mdAsData(),
     setHtmlLang('zh-CN'),
-    VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      includeAssets: ['/favicon.svg'],
-      manifest: {
-        name: 'LiangYouBiao 的博客',
-        short_name: 'LiangYouBiao 博客',
-        description: 'LiangYouBiao 的个人博客 — 记录学习与生活的点滴',
-        theme_color: '#0f9d58',
-        background_color: '#eaeaea',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
-        lang: 'zh-CN',
-        display_override: ['window-controls-overlay', 'standalone', 'browser'],
-        icons: [
-          { src: '/pwa-192x192.webp', sizes: '192x192', type: 'image/webp' },
-          { src: '/pwa-512x512.webp', sizes: '512x512', type: 'image/webp' },
-          { src: '/maskable-icon.webp', sizes: '512x512', type: 'image/webp', purpose: 'maskable' },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,webp,png,ico,jpg,jpeg}'],
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
-      },
-      devOptions: { enabled: false },
-    }),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
@@ -205,6 +174,4 @@ export default defineConfig({
   // @ts-expect-error - ssgOptions 是 vite-ssg 扩展
   ssgOptions: { script: 'async', formatting: 'minify', crittersOptions: false },
 })
-
-
 
