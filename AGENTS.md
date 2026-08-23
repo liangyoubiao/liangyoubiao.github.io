@@ -1,6 +1,11 @@
 # AGENTS.md
 
-## 两条血泪教训
+## 约定(重要)
+
+- **git commit / push 必须手动**:AI 助手(包括本次会话)不自动 commit 或 push。所有改动由人 review 后手动提交。
+- **每次修改后需中文总结**:改完一个功能点(无论大小)就总结改了什么、用作 commit message。格式: `类型: 一句话描述改动`(类型用英文: feat/fix/refactor/docs/style/perf/chore,描述用中文)。例: `feat: 新增文章 TOC 左侧悬浮` / `fix: 修复路由 404,避免 Vite tree-shake` / `docs: AGENTS.md 补充 git 工作流约定` / `style: 移除首页 sidebar widgets 让首页更聚焦`。多个独立改动用多次 commit(不要一次 commit 很多事),方便回溯。
+- **commit message 必须用中文**:比如 `feat: 新增 XX 功能` 而不是 `feat: add XX feature`。`docs:` `fix:` `refactor:` `style:` `chore:` `perf:` `test:` `build:` 这种类型前缀可以保留英文(行业标准),但描述部分必须是中文。
+
 
 ### 1. 改 package.json 后必须 npm install 重新生 lockfile
 
