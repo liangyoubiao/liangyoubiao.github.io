@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearch } from '@/composables/useSearch'
 
@@ -59,6 +59,8 @@ function onBackdropClick(e: MouseEvent) {
 onMounted(() => {
   document.addEventListener('keydown', onKeydown)
 })
+
+onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
@@ -378,4 +380,3 @@ onMounted(() => {
   font-family: monospace;
 }
 </style>
-

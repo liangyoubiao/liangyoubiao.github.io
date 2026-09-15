@@ -47,6 +47,8 @@ function scrollDown(e: Event) {
         v-for="(src, i) in banners"
         :key="i"
         class="bg-slide"
+        role="img"
+        :aria-label="`${site.title}背景图 ${i + 1}`"
         :style="{
           backgroundImage: `url(${src})`,
           animationDelay: `${i * 6}s`,
@@ -201,4 +203,3 @@ function scrollDown(e: Event) {
   }
 }
 </style>
-

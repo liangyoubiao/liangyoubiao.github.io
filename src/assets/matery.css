@@ -195,6 +195,16 @@ mark { background-color: #fcf8e3; padding: .2em; }
   margin: 0;
   padding: 0;
   flex: 1;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .matery-menu a {
@@ -838,7 +848,6 @@ pre.shiki:hover .code-copy,
 .article-content a.lightbox-item:hover .lazy-img {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
-
 
 
 
