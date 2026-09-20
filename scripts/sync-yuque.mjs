@@ -1,7 +1,8 @@
 // 语雀图片自动同步:扫描 src/content/posts/*.md,
-// 下载 https://cdn.nlark.com/yuque/* 图片到 public/images/yuque/,
-// 把 .md 里的远程 URL 改写成 /images/yuque/<file>。
-// 幂等:已下载的图跳过下载,URL 替换一次后稳定。
+// 把每篇 md 的 https://cdn.nlark.com/yuque/* 图片下载到
+//   public/images/yuque/<md文件名(去 .md)>/
+// 并把 .md 里的远程 URL 改写为 /images/yuque/<md文件名>/<file>。
+// 幂等:已下载的图跳过,URL 替换一次后稳定。
 //
 // 用法:
 //   手动:   node scripts/sync-yuque.mjs
@@ -9,7 +10,7 @@
 //
 // 离线时: 下载失败跳过,build 仍能继续(已替换的 URL 仍生效)。
 
-import { readFile, writeFile, mkdir, stat, readdir } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -18,11 +19,11 @@ import http from 'node:http'
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const POSTS_DIR = join(ROOT, 'src/content/posts')
-const IMG_DIR = join(ROOT, 'public/images/yuque')
+const IMG_ROOT = join(ROOT, 'public/images/yuque')
 
 const YUQUE_IMG_RE = /https?:\/\/cdn\.nlark\.com\/yuque\/[^)\s]+\.(jpe?g|png|gif|webp)(\?[^)\s]*)?/g
 
-await mkdir(IMG_DIR, { recursive: true })
+await mkdir(IMG_ROOT, { recursive: true })
 
 let scanned = 0
 let downloads = 0
@@ -98,19 +99,23 @@ function extractFilename(url) {
 
 async function processPost(file) {
   if (!file.endsWith('.md')) return
+  const slug = file.replace(/\.md$/, '')
   const full = join(POSTS_DIR, file)
   const original = await readFile(full, 'utf-8')
   const urls = [...new Set([...original.matchAll(YUQUE_IMG_RE)].map((m) => m[0]))]
   if (urls.length === 0) return
   scanned++
 
-  console.log(`\n📄 ${file}  (${urls.length} 张语雀图)`)
+  const postImgDir = join(IMG_ROOT, slug)
+  await mkdir(postImgDir, { recursive: true })
+
+  console.log(`\n📄 ${file}  (${urls.length} 张语雀图 → public/images/yuque/${slug}/)`)
   let content = original
 
   for (const url of urls) {
     const filename = extractFilename(url)
-    const localPath = join(IMG_DIR, filename)
-    const localUrl = `/images/yuque/${filename}`
+    const localPath = join(postImgDir, filename)
+    const localUrl = `/images/yuque/${slug}/${filename}`
 
     if (existsSync(localPath)) {
       skipped++
