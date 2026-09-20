@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import type { Post } from '@/utils/posts'
+import { pickArticleCover } from '@/utils/articleCover'
 
 const props = defineProps<{ posts: Post[] }>()
 
@@ -15,27 +16,28 @@ const GRADIENTS = [
   'linear-gradient(135deg, #55EFCB 0%, #5BCAFF 100%)',
 ]
 
-// 24 张 featureimage(从老 matery 主题迁移到 /medias/featureimages/)
-const FEATURE_COUNT = 24
-
-function hash(s: string): number {
-  let h = 0
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h) + s.charCodeAt(i)
-    h |= 0
-  }
-  return Math.abs(h)
+interface Item extends Post {
+  cover: string
+  gradient: string
+  excerpt: string
 }
 
-const items = computed(() => props.posts.map((p, i) => {
-  const cover = p.cover || `/medias/featureimages/${hash(p.slug) % FEATURE_COUNT}.webp`
-  return {
+function buildItems(random: boolean): Item[] {
+  return props.posts.map((p, i): Item => ({
     ...p,
-    cover,
+    cover: pickArticleCover(p.content, p.slug, p.cover, random),
     gradient: GRADIENTS[i % GRADIENTS.length],
     excerpt: (p.description || extractExcerpt(p.content)).substring(0, 100),
-  }
-}))
+  }))
+}
+
+// SSR / 首屏水合用 hash 取稳定封面(避免 hydration mismatch)
+const items = ref<Item[]>(buildItems(false))
+
+// 客户端挂载后再随机化,每次刷新都换
+onBeforeMount(() => {
+  items.value = buildItems(true)
+})
 
 function getCoverStyle(cover: string) { return { background: 'url(' + cover + ') center/cover, var(--matery-gradient)' } }
 

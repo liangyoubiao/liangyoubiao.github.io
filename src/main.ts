@@ -1,7 +1,7 @@
 import { ViteSSG } from 'vite-ssg'
 import App from './App.vue'
 import { staticRoutes } from './router'
-import { generatedPosts, generatedTags } from './__generated_routes'
+import { generatedPosts } from './__generated_routes'
 import './assets/main.css'
 import './assets/matery.css'
 
@@ -12,10 +12,12 @@ const postRoutes = generatedPosts.map((post) => ({
   component: () => import('./pages/PostDetail.vue'),
 }))
 
-const tagRoutes = generatedTags.map((tag) => ({
-  path: `/tags/${encodeURIComponent(tag)}/`,
-  component: () => import('./pages/TagDetail.vue'),
-}))
+const tagRoutes = [
+  {
+    path: '/tags/:tag/',
+    component: () => import('./pages/TagDetail.vue'),
+  },
+]
 
 export const createApp = ViteSSG(
   App,

@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import type { Post } from '@/utils/posts'
+import { pickArticleCover } from '@/utils/articleCover'
 
 const props = defineProps<{ post: Post }>()
-
-// 24 张 featureimage(从老 matery 主题 /medias/featureimages/ 迁移)
-const FEATURE_COUNT = 24
 
 // 6 套渐变占位(老 matery 的 fallback)
 const GRADIENTS = [
@@ -26,9 +24,12 @@ function hash(s: string): number {
   return Math.abs(h)
 }
 
-const cover = computed(() => {
-  if (props.post.cover) return props.post.cover
-  return `/medias/featureimages/${hash(props.post.slug) % FEATURE_COUNT}.webp`
+// SSR / 首屏水合:hash 取稳定的一张,避免 hydration mismatch
+const cover = ref(pickArticleCover(props.post.content, props.post.slug, props.post.cover, false))
+
+// 客户端挂载后再随机化,每次刷新都会换
+onBeforeMount(() => {
+  cover.value = pickArticleCover(props.post.content, props.post.slug, props.post.cover, true)
 })
 
 const gradient = computed(() => GRADIENTS[hash(props.post.slug) % GRADIENTS.length])

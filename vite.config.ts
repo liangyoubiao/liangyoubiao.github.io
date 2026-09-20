@@ -172,6 +172,15 @@ export default defineConfig({
   server: { host: '127.0.0.1', port: 5173, strictPort: false },
   preview: { host: '127.0.0.1', port: 5050, strictPort: false },
   // @ts-expect-error - ssgOptions 是 vite-ssg 扩展
-  ssgOptions: { script: 'async', formatting: 'minify', crittersOptions: false },
+  ssgOptions: {
+    script: 'async',
+    formatting: 'minify',
+    crittersOptions: false,
+    includedRoutes(paths) {
+      const { tags } = buildRoutes()
+      const tagPaths = tags.map((tag) => `/tags/${encodeURIComponent(tag)}/`)
+      return [...paths, ...tagPaths]
+    },
+  },
 })
 
