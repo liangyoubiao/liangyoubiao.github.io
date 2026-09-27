@@ -7,7 +7,9 @@ import { getAllPosts, getRecommendedPosts } from '@/utils/posts'
 
 const posts = getAllPosts()
 const recommended = getRecommendedPosts()
-const latestPosts = posts
+const LATEST_LIMIT = 6
+const latestPosts = posts.slice(0, LATEST_LIMIT)
+const hasMore = posts.length > LATEST_LIMIT
 </script>
 
 <template>
@@ -24,7 +26,7 @@ const latestPosts = posts
           <span class="title-icon">📚</span>
           <span>最新文章</span>
         </h2>
-        <p class="latest-sub">共 {{ latestPosts.length }} 篇 · 按发布时间倒序</p>
+        <p class="latest-sub">共 {{ posts.length }} 篇 · 按发布时间倒序</p>
       </header>
 
       <div class="row article-row">
@@ -34,6 +36,10 @@ const latestPosts = posts
         <div v-if="!latestPosts.length" class="empty">
           <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
         </div>
+      </div>
+
+      <div v-if="hasMore" class="latest-more">
+        <RouterLink to="/archives/" class="more-link">查看更多 →</RouterLink>
       </div>
     </article>
   </div>
@@ -88,6 +94,28 @@ const latestPosts = posts
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
   font-size: 0.9em;
+}
+
+.latest-more {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.more-link {
+  display: inline-block;
+  padding: 0.55rem 1.6rem;
+  border: 1px solid var(--matery-primary, #0f9d58);
+  border-radius: 999px;
+  color: var(--matery-primary, #0f9d58);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.more-link:hover {
+  background: var(--matery-primary, #0f9d58);
+  color: #fff;
 }
 </style>
 
