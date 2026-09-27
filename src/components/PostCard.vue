@@ -87,8 +87,8 @@ const bgStyle = computed(() => ({
       </div>
       <p class="card-summary">{{ summary }}</p>
       <div class="card-footer">
-        <RouterLink :to="post.url" class="read-more">阅读全文 →</RouterLink>
         <span class="read-time"><i class="far fa-clock"></i> {{ Math.max(1, Math.ceil(post.content.length / 400)) }} 分钟</span>
+        <RouterLink :to="post.url" class="read-more">阅读全文 →</RouterLink>
       </div>
     </div>
   </article>
@@ -104,7 +104,7 @@ const bgStyle = computed(() => ({
 }
 
 .card-bg {
-  height: 200px;
+  height: 140px;
   position: relative;
   transition: transform 0.5s ease;
   transform-origin: center;
@@ -157,7 +157,7 @@ const bgStyle = computed(() => ({
 }
 
 .card-content {
-  padding: 1.1rem 1.5rem 1.25rem;
+  padding: 0.85rem 1.25rem 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -186,14 +186,14 @@ const bgStyle = computed(() => ({
 
 .card-summary {
   color: #666;
-  font-size: 0.88rem;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  line-height: 1.55;
   flex: 1;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.6rem;
 }
 
 .card-footer {
@@ -202,7 +202,8 @@ const bgStyle = computed(() => ({
   align-items: center;
   font-size: 0.78rem;
   border-top: 1px dashed #eee;
-  padding-top: 0.6rem;
+  padding-top: 0.55rem;
+  gap: 0.5rem;
 }
 
 .read-more {
