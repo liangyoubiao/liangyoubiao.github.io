@@ -21,25 +21,27 @@ const hasMore = posts.length > LATEST_LIMIT
     <Recommend v-if="recommended.length" :posts="recommended" />
 
     <article id="articles" class="container articles">
-      <header class="latest-header">
-        <h2 class="latest-title">
-          <span class="title-icon">📚</span>
-          <span>最新文章</span>
-        </h2>
-        <p class="latest-sub">共 {{ posts.length }} 篇 · 按发布时间倒序</p>
-      </header>
+      <div class="latest-inner">
+        <header class="latest-header">
+          <h2 class="latest-title">
+            <span class="title-icon">📚</span>
+            <span>最新文章</span>
+          </h2>
+          <p class="latest-sub">共 {{ posts.length }} 篇 · 按发布时间倒序</p>
+        </header>
 
-      <div class="row article-row">
-        <div v-for="post in latestPosts" :key="post.slug" class="article-col">
-          <PostCard :post="post" />
+        <div class="row article-row">
+          <div v-for="post in latestPosts" :key="post.slug" class="article-col">
+            <PostCard :post="post" />
+          </div>
+          <div v-if="!latestPosts.length" class="empty">
+            <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
+          </div>
         </div>
-        <div v-if="!latestPosts.length" class="empty">
-          <p>还没有文章,先去 <code>src/content/posts/</code> 添加一篇吧。</p>
-        </div>
-      </div>
 
-      <div v-if="hasMore" class="latest-more">
-        <RouterLink to="/archives/" class="more-link">查看更多 →</RouterLink>
+        <div v-if="hasMore" class="latest-more">
+          <RouterLink to="/archives/" class="more-link">查看更多 →</RouterLink>
+        </div>
       </div>
     </article>
   </div>
@@ -56,6 +58,12 @@ const hasMore = posts.length > LATEST_LIMIT
 .home-page :deep(.empty code) {
   user-select: text;
   -webkit-user-select: text;
+}
+
+.latest-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 .latest-header {
