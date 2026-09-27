@@ -7,7 +7,7 @@ import { getAllPosts, getRecommendedPosts } from '@/utils/posts'
 
 const posts = getAllPosts()
 const recommended = getRecommendedPosts()
-const latestPosts = posts.filter((p) => !p.top)
+const latestPosts = posts
 </script>
 
 <template>
