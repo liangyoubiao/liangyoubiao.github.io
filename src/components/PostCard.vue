@@ -98,9 +98,11 @@ const bgStyle = computed(() => ({
 .card-image {
   position: relative;
   display: block;
+  height: 140px;
   text-decoration: none;
   color: inherit;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .card-bg {
