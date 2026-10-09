@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import DefaultLayout from './layouts/Default.vue'
+import ScreenLock from './components/ScreenLock.vue'
 </script>
 
 <template>
   <DefaultLayout>
     <RouterView />
+    <ScreenLock />
   </DefaultLayout>
 </template>
 
