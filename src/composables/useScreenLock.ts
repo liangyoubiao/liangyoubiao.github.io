@@ -3,6 +3,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const TIMEOUT_MS = 30 * 60 * 1000
 const CLICK_EXTEND_MS = 10 * 60 * 1000
 
+export const PATTERN_PASSWORD = [4, 2, 3, 5, 7, 8, 6] as const
+
 let lockDeadline: number | null = null
 const isLocked = ref(true)
 let intervalId: number | null = null
@@ -52,6 +54,7 @@ export function useScreenLock() {
 
   return {
     isLocked,
+    passwordLength: PATTERN_PASSWORD.length,
     unlock,
   }
 }
