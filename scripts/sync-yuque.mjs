@@ -4,16 +4,20 @@
 // 并把 .md 里的远程 URL 改写为 /images/yuque/<md文件名>/<file>。
 // 幂等:已下载的图跳过,URL 替换一次后稳定。
 //
-// 用法:
-//   手动:   node scripts/sync-yuque.mjs
-//   自动:   在 package.json 加 "prebuild": "node scripts/sync-yuque.mjs"
+// 触发方式:
+//   npm run dev       → vite 插件(dev server 启动时全量同步,md 变更时增量同步)
+//   npm run build     → prebuild 钩子
+//   npm run sync:images → 手动全量同步
 //
-// 离线时: 下载失败跳过,build 仍能继续(已替换的 URL 仍生效)。
+// 行为约定:
+//   - 代码块里的 URL(文档示例)跳过,不做无谓的下载请求
+//   - 并发下载,默认 8 路
+//   - 写入前二次校验,避免覆盖同步期间用户对 md 的改动
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, readdir, rmdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, basename } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import https from 'node:https'
 import http from 'node:http'
 
@@ -21,133 +25,224 @@ const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const POSTS_DIR = join(ROOT, 'src/content/posts')
 const IMG_ROOT = join(ROOT, 'public/images/yuque')
 
-const YUQUE_IMG_RE = /https?:\/\/cdn\.nlark\.com\/yuque\/[^)\s]+\.(jpe?g|png|gif|webp)(\?[^)\s]*)?/g
+const YUQUE_IMG_RE = /https?:\/\/cdn\.nlark\.com\/yuque\/[^\s)"']+?\.(?:jpe?g|png|gif|webp)(?:\?[^\s)"']*)?/g
+const FENCE_RE = /^\s*(`{3,}|~{3,})/
 
-await mkdir(IMG_ROOT, { recursive: true })
+// 把内容切成「代码块 / 非代码块」片段,原文可由片段用 '\n' 拼回
+export function splitFencedBlocks(content) {
+  const segments = []
+  let buffer = []
+  let fence = null
 
-let scanned = 0
-let downloads = 0
-let skipped = 0
-let failed = 0
-let replaced = 0
+  const flush = (code) => {
+    segments.push({ code, text: buffer.join('\n') })
+    buffer = []
+  }
 
-function fetchToFile(url, dest) {
+  for (const line of content.split('\n')) {
+    const m = line.match(FENCE_RE)
+    if (!fence) {
+      if (m) {
+        flush(false)
+        fence = { char: m[1][0], len: m[1].length }
+      }
+      buffer.push(line)
+    } else {
+      buffer.push(line)
+      if (m && m[1][0] === fence.char && m[1].length >= fence.len) {
+        flush(true)
+        fence = null
+      }
+    }
+  }
+  flush(fence !== null)
+  return segments
+}
+
+export function extractYuqueUrls(content) {
+  const urls = new Set()
+  for (const seg of splitFencedBlocks(content)) {
+    if (seg.code) continue
+    for (const m of seg.text.matchAll(YUQUE_IMG_RE)) urls.add(m[0])
+  }
+  return [...urls]
+}
+
+function rewriteUrls(content, replacements) {
+  const segments = splitFencedBlocks(content)
+  for (const seg of segments) {
+    if (seg.code) continue
+    let text = seg.text
+    for (const [from, to] of replacements) text = text.split(from).join(to)
+    seg.text = text
+  }
+  return segments.map((s) => s.text).join('\n')
+}
+
+function download(url, dest, redirects = 0) {
   return new Promise((resolve) => {
     const lib = url.startsWith('https:') ? https : http
     const req = lib.get(
       url,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           Referer: 'https://www.yuque.com/',
         },
-        timeout: 15000,
+        timeout: 20000,
       },
       (res) => {
-        if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          // 跟随重定向
-          fetchToFile(res.headers.location, dest).then(resolve)
-          return
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          res.resume()
+          if (redirects >= 5) return resolve(false)
+          return resolve(download(new URL(res.headers.location, url).href, dest, redirects + 1))
         }
         if (res.statusCode !== 200) {
-          console.error(`  ❌ HTTP ${res.statusCode} ${url}`)
           res.resume()
-          failed++
-          resolve(false)
-          return
+          return resolve(false)
         }
         const chunks = []
         res.on('data', (c) => chunks.push(c))
         res.on('end', async () => {
           try {
-            const buf = Buffer.concat(chunks)
-            const { writeFile } = await import('node:fs/promises')
-            await writeFile(dest, buf)
+            await writeFile(dest, Buffer.concat(chunks))
             resolve(true)
-          } catch (e) {
-            console.error(`  ❌ 写文件失败: ${e.message}`)
-            failed++
+          } catch {
             resolve(false)
           }
         })
-        res.on('error', (e) => {
-          console.error(`  ❌ 下载失败 ${url}: ${e.message}`)
-          failed++
-          resolve(false)
-        })
+        res.on('error', () => resolve(false))
       },
     )
-    req.on('error', (e) => {
-      console.error(`  ❌ 请求失败 ${url}: ${e.message}`)
-      failed++
-      resolve(false)
-    })
+    req.on('error', () => resolve(false))
     req.on('timeout', () => {
-      console.error(`  ❌ 超时 ${url}`)
       req.destroy()
-      failed++
       resolve(false)
     })
   })
 }
 
-function extractFilename(url) {
-  // 拿路径最后一段,去掉 query
-  const noQuery = url.split('?')[0]
-  return basename(noQuery)
+async function runPool(items, limit, worker) {
+  let cursor = 0
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      await worker(items[cursor++])
+    }
+  })
+  await Promise.all(runners)
 }
 
-async function processPost(file) {
-  if (!file.endsWith('.md')) return
-  const slug = file.replace(/\.md$/, '')
-  const full = join(POSTS_DIR, file)
-  const original = await readFile(full, 'utf-8')
-  const urls = [...new Set([...original.matchAll(YUQUE_IMG_RE)].map((m) => m[0]))]
-  if (urls.length === 0) return
-  scanned++
+// 删掉空目录(某篇图的下载全失败时会留下空壳)
+async function cleanupEmptyDirs(root) {
+  if (!existsSync(root)) return
+  for (const name of await readdir(root)) {
+    const dir = join(root, name)
+    try {
+      if ((await readdir(dir)).length === 0) await rmdir(dir)
+    } catch {
+      // 不是目录或已被清理,忽略
+    }
+  }
+}
 
-  const postImgDir = join(IMG_ROOT, slug)
-  await mkdir(postImgDir, { recursive: true })
+export async function syncYuque(options = {}) {
+  const {
+    postsDir = POSTS_DIR,
+    imgRoot = IMG_ROOT,
+    concurrency = 8,
+    files = null,
+    quiet = false,
+  } = options
 
-  console.log(`\n📄 ${file}  (${urls.length} 张语雀图 → public/images/yuque/${slug}/)`)
-  let content = original
+  const log = (...args) => {
+    if (!quiet) console.log(...args)
+  }
 
-  for (const url of urls) {
-    const filename = extractFilename(url)
-    const localPath = join(postImgDir, filename)
-    const localUrl = `/images/yuque/${slug}/${filename}`
+  let names = (await readdir(postsDir)).filter((n) => n.endsWith('.md'))
+  if (files) {
+    const wanted = new Set(files)
+    names = names.filter((n) => wanted.has(n))
+  }
 
-    if (existsSync(localPath)) {
-      skipped++
-      console.log(`  ℹ️ 已存在,跳过下载: ${filename}`)
-    } else {
-      console.log(`  📥 下载: ${url}`)
-      const ok = await fetchToFile(url, localPath)
-      if (ok) {
-        downloads++
-        console.log(`  ✅ 保存: ${localPath}`)
+  let downloaded = 0
+  let skipped = 0
+  let failed = 0
+  let replaced = 0
+  let changedFiles = 0
+
+  for (const file of names) {
+    const slug = file.replace(/\.md$/, '')
+    const full = join(postsDir, file)
+    const original = await readFile(full, 'utf-8')
+    const urls = extractYuqueUrls(original)
+    if (urls.length === 0) continue
+
+    const postImgDir = join(imgRoot, slug)
+    const replacements = []
+    const pending = []
+
+    for (const url of urls) {
+      const filename = basename(url.split('?')[0])
+      const localPath = join(postImgDir, filename)
+      const localUrl = `/images/yuque/${slug}/${filename}`
+      if (existsSync(localPath)) {
+        skipped++
+        replacements.push([url, localUrl])
       } else {
-        continue  // 下载失败,不替换 URL
+        pending.push({ url, localPath, localUrl, filename })
       }
     }
 
-    // 替换 .md 里的远程 URL(含 ?query)
-    const re = new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
-    const before = content.length
-    content = content.replace(re, localUrl)
-    if (content.length !== before) replaced++
-  }
+    if (pending.length > 0) {
+      await mkdir(postImgDir, { recursive: true })
+      log(`\n📄 ${file}  (待下载 ${pending.length} 张 → public/images/yuque/${slug}/)`)
+      await runPool(pending, concurrency, async (item) => {
+        if (await download(item.url, item.localPath)) {
+          downloaded++
+          replacements.push([item.url, item.localUrl])
+          log(`  ✅ ${item.filename}`)
+        } else {
+          failed++
+          log(`  ❌ ${item.filename}  ${item.url}`)
+        }
+      })
+    }
 
-  if (content !== original) {
+    if (replacements.length === 0) continue
+
+    const content = rewriteUrls(original, replacements)
+    if (content === original) continue
+
+    // 同步期间用户改了 md,放弃本次写入,避免覆盖
+    const latest = await readFile(full, 'utf-8')
+    if (latest !== original) {
+      log(`  ⚠️ ${file} 在同步期间被修改,跳过写入(下次同步会重试)`)
+      continue
+    }
+
     await writeFile(full, content, 'utf-8')
-    console.log(`  💾 更新: ${file}`)
+    replaced += replacements.length
+    changedFiles++
+    log(`  💾 ${file}`)
   }
+
+  await cleanupEmptyDirs(imgRoot)
+
+  const summary = `[yuque] 扫描 ${names.length} 篇 · 下载 ${downloaded} · 已存在 ${skipped} · 失败 ${failed} · 改写 ${replaced} 处 / ${changedFiles} 个文件`
+  log(summary)
+  return { downloaded, skipped, failed, replaced, changedFiles }
 }
 
-const files = await readdir(POSTS_DIR)
-for (const f of files) {
-  await processPost(f)
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (isMain) {
+  const argv = process.argv.slice(2)
+  const fileArgs = argv.filter((a) => a.startsWith('--file=')).map((a) => a.slice('--file='.length))
+  syncYuque({
+    files: fileArgs.length > 0 ? fileArgs : null,
+    quiet: argv.includes('--quiet'),
+  }).catch((e) => {
+    console.error('[yuque] 同步失败:', e.message)
+    process.exit(1)
+  })
 }
-
-console.log(`\n[yuque] 扫描 ${scanned} 篇文章  下载 ${downloads} 张  跳过 ${skipped} 张  失败 ${failed} 张  替换 ${replaced} 处`)
-

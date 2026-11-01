@@ -1,6 +1,6 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL, pathToFileURL } from 'node:url'
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join, dirname, basename } from 'node:path'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -137,6 +137,59 @@ export const generatedTags: string[] = ${JSON.stringify(tags, null, 2)}
   }
 }
 
+// dev 模式下自动同步语雀图:
+// dev server 启动时全量同步一次,之后 md 变更时增量同步该文件。
+// build 模式不启用(走 package.json 的 prebuild 钩子)。
+function yuqueSync(): Plugin {
+  let running = false
+  let pendingFull = false
+  const pendingFiles = new Set<string>()
+
+  const run = async (files: string[] | null): Promise<void> => {
+    running = true
+    try {
+      const sync = await import(pathToFileURL(join(ROOT, 'scripts/sync-yuque.mjs')).href)
+      const result = await sync.syncYuque({ files })
+      if (result.changedFiles > 0 || files) {
+        const search = await import(pathToFileURL(join(ROOT, 'scripts/build-search.mjs')).href)
+        search.buildSearch()
+      }
+    } catch (e) {
+      console.error('[yuque] 同步失败:', e)
+    } finally {
+      running = false
+      if (pendingFull || pendingFiles.size > 0) {
+        const next = pendingFull ? null : [...pendingFiles]
+        pendingFull = false
+        pendingFiles.clear()
+        void run(next)
+      }
+    }
+  }
+
+  const schedule = (files: string[] | null): void => {
+    if (running) {
+      if (files) files.forEach((f) => pendingFiles.add(f))
+      else pendingFull = true
+      return
+    }
+    void run(files)
+  }
+
+  return {
+    name: 'yuque-sync',
+    apply: 'serve',
+    configureServer(server) {
+      schedule(null)
+      const onPostChange = (file: string): void => {
+        if (file.endsWith('.md')) schedule([basename(file)])
+      }
+      server.watcher.on('add', onPostChange)
+      server.watcher.on('change', onPostChange)
+    },
+  }
+}
+
 function setHtmlLang(lang: string): Plugin {
   return {
     name: `set-html-lang-${lang}`,
@@ -161,6 +214,7 @@ function setHtmlLang(lang: string): Plugin {
 export default defineConfig({
   plugins: [
     generateRoutes(),
+    yuqueSync(),
     vue(),
     mdAsData(),
     setHtmlLang('zh-CN'),
