@@ -37,12 +37,18 @@ npm error Invalid: lock file sharp@0.35.3 does not satisfy sharp@0.34.5
 ## 命令
 
 ```
-npm run dev                  # 开发,http://127.0.0.1:5173
+npm run dev                  # 开发,http://127.0.0.1:5173(自动同步语雀图)
 npm run preview              # 看 dist,http://127.0.0.1:5050
 npm run build                # 包含 prebuild(语雀图同步) + build
-node scripts/sync-yuque.mjs # 手动跑语雀图同步
+npm run sync:images          # 手动跑语雀图同步
+node scripts/sync-yuque.mjs # 同上
 npx vue-tsc --noEmit         # 类型检查
 ```
+
+## 语雀图同步
+
+- `npm run dev` 时 `vite.config.ts` 的 `yuqueSync` 插件自动同步:启动时全量同步,md 变更时增量同步
+- CI 的 prebuild 只在 runner 临时工作区下载图片,**不会把图片提交回仓库**。想让图片进 git,本地跑 `npm run sync:images` 后连图带 md 一起 commit
 
 ## 5 个常见坑
 
